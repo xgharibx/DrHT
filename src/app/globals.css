@@ -669,3 +669,101 @@ html.lenis, html.lenis body {
 .lenis.lenis-scrolling iframe {
   pointer-events: none;
 }
+
+/* ============================================================
+   MOBILE PERFORMANCE OPTIMIZATIONS
+   ============================================================ */
+@media (max-width: 767px) {
+  /* Disable expensive box-shadow animations on mobile */
+  .breathing-glow {
+    animation: none !important;
+    box-shadow: 0 0 15px rgba(212, 168, 83, 0.08) !important;
+  }
+
+  /* Simplify text glow pulses */
+  .verse-glow-pulse {
+    animation: none !important;
+    text-shadow: 0 0 20px rgba(45, 212, 168, 0.18) !important;
+  }
+
+  /* Reduce backdrop-filter cost — biggest paint perf win */
+  .glass-card,
+  .glass-premium,
+  .frosted-glass {
+    backdrop-filter: blur(8px) !important;
+    -webkit-backdrop-filter: blur(8px) !important;
+  }
+
+  /* Holographic shimmer is pointer-driven; disable on touch */
+  .holographic-card::before {
+    display: none !important;
+  }
+
+  /* Disable conic glow ring on mobile — expensive GPU layer */
+  .glow-ring::after {
+    display: none !important;
+  }
+
+  /* Disable spinning miracle glow ring */
+  .miracle-glow::before {
+    display: none !important;
+  }
+
+  /* Cursor light effects require mousemove — hide on touch */
+  .particle-cursor::after {
+    display: none !important;
+  }
+
+  /* Release GPU layers not needed on mobile */
+  .holographic-card,
+  .glass-card,
+  .glass-premium {
+    will-change: auto !important;
+    transform: translateZ(0); /* keep single composite layer */
+  }
+
+  /* Minimum tap target size — height only to avoid breaking inline text */
+  button,
+  a[href],
+  [role="button"] {
+    min-height: 44px;
+  }
+
+  /* Reduce scroll-shine animation cost */
+  .scroll-shine {
+    animation: none !important;
+    background: none !important;
+  }
+
+  /* Avoid 3D transforms on cards — mobile GPUs struggle */
+  .glass-card:hover,
+  .glass-premium:hover {
+    transform: none !important;
+  }
+}
+
+/* ============================================================
+   REDUCED MOTION PREFERENCE
+   ============================================================ */
+@media (prefers-reduced-motion: reduce) {
+  .breathing-glow,
+  .verse-glow-pulse,
+  .scroll-shine,
+  .text-shimmer,
+  .floating-label,
+  .morphing-digit {
+    animation: none !important;
+  }
+
+  .holographic-card::before,
+  .glow-ring::after,
+  .miracle-glow::before {
+    display: none !important;
+  }
+
+  * {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
+}

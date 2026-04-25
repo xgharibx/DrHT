@@ -13,6 +13,7 @@ import { verses } from '@/data/verses';
 import { MiracleCategory } from '@/types';
 import { ScrollReveal, TextReveal, AnimatedCounter } from '@/components/effects/ScrollAnimations';
 import { CinematicTypewriter, AnimatedGradientText } from '@/components/effects/TextEffects';
+import { useIsMobile } from '@/hooks/useIsMobile';
 
 const CinematicCosmos = dynamic(() => import('@/components/three/CinematicCosmos'), {
   ssr: false,
@@ -197,6 +198,7 @@ function FloatingNav() {
 export default function HomePage() {
   const [selectedCategory, setSelectedCategory] = useState<MiracleCategory | 'all'>('all');
   const [activeShowcase, setActiveShowcase] = useState(0);
+  const isMobile = useIsMobile();
 
   const featuredVerse = verses[0];
   const filteredMiracles =
@@ -227,14 +229,26 @@ export default function HomePage() {
       <FloatingNav />
 
       {/* ═══════════ SECTION 1: CINEMATIC HERO ═══════════ */}
-      <section data-section className="relative min-h-screen flex items-center justify-center overflow-hidden">
-        {/* Multi-layer background */}
+      <section data-section className="relative min-h-screen min-h-[100svh] flex items-center justify-center overflow-hidden">
+        {/* Multi-layer background — heavy 3D disabled on mobile for performance */}
         <div className="absolute inset-0 z-0">
-          <CinematicCosmos variant="full" />
+          {isMobile ? (
+            <div
+              className="absolute inset-0"
+              style={{
+                background:
+                  'radial-gradient(ellipse at 50% 40%, rgba(26,16,64,0.95) 0%, rgba(13,17,23,0.98) 55%, #0a0a0f 100%)',
+              }}
+            />
+          ) : (
+            <CinematicCosmos variant="full" />
+          )}
         </div>
-        <div className="absolute inset-0 z-[1]">
-          <ParticleField variant="gold-dust" density={0.5} speed={0.5} interactive={false} />
-        </div>
+        {!isMobile && (
+          <div className="absolute inset-0 z-[1]">
+            <ParticleField variant="gold-dust" density={0.5} speed={0.5} interactive={false} />
+          </div>
+        )}
 
         {/* Gradient overlays */}
         <div className="absolute inset-0 z-[2] bg-gradient-to-b from-vanta/40 via-transparent to-vanta pointer-events-none" />
@@ -413,11 +427,13 @@ export default function HomePage() {
       </section>
 
       {/* ═══════════ SECTION 2: BEFORE / AFTER TIMELINE ═══════════ */}
-      <section data-section className="relative py-28 overflow-hidden">
+      <section data-section className="relative py-16 md:py-28 overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-b from-vanta via-deep-navy/30 to-vanta" />
-        <div className="absolute inset-0 z-0 opacity-30">
-          <SacredGeometry color="#d4a853" intensity={0.5} />
-        </div>
+        {!isMobile && (
+          <div className="absolute inset-0 z-0 opacity-30">
+            <SacredGeometry color="#d4a853" intensity={0.5} />
+          </div>
+        )}
 
         <div className="container mx-auto px-6 relative z-10">
           <ScrollReveal variant="blur">
@@ -487,7 +503,7 @@ export default function HomePage() {
                           </div>
 
                           {/* ── SPLIT COMPARISON ── */}
-                          <div className="grid grid-cols-[1fr_auto_1fr] items-stretch">
+                          <div className="grid grid-cols-1 sm:grid-cols-[1fr_auto_1fr] items-stretch">
 
                             {/* PAST panel */}
                             <div className="relative px-6 md:px-10 py-8">
@@ -680,7 +696,7 @@ export default function HomePage() {
       </section>
 
       {/* ═══════════ SECTION 4: WHO ARE YOU? ═══════════ */}
-      <section data-section className="relative py-28">
+      <section data-section className="relative py-16 md:py-28">
         <div className="container mx-auto px-6">
           <ScrollReveal variant="blur">
             <div className="text-center mb-16">
@@ -726,9 +742,11 @@ export default function HomePage() {
       {/* ═══════════ SECTION 5: FEATURED VERSE ═══════════ */}
       <section data-section className="relative py-24 overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-b from-transparent via-cosmic-purple/10 to-transparent" />
-        <div className="absolute inset-0 z-0 opacity-20">
-          <ParticleField variant="divine-light" density={0.3} speed={0.3} interactive={false} />
-        </div>
+        {!isMobile && (
+          <div className="absolute inset-0 z-0 opacity-20">
+            <ParticleField variant="divine-light" density={0.3} speed={0.3} interactive={false} />
+          </div>
+        )}
         <div className="container mx-auto px-6 max-w-4xl relative z-10">
           <ScrollReveal variant="scale">
             <VerseDisplay verse={featuredVerse} size="lg" />
@@ -866,7 +884,7 @@ export default function HomePage() {
       </section>
 
       {/* ═══════════ SECTION 8: DOUBT RESOLVER ═══════════ */}
-      <section data-section className="relative py-28">
+      <section data-section className="relative py-16 md:py-28">
         <div className="absolute inset-0 bg-gradient-to-b from-transparent via-red-950/5 to-transparent" />
         <div className="container mx-auto px-6 max-w-4xl relative z-10">
           <ScrollReveal variant="blur">
@@ -1013,11 +1031,13 @@ export default function HomePage() {
       </section>
 
       {/* ═══════════ FINAL CTA ═══════════ */}
-      <section className="relative py-36 overflow-hidden">
+      <section className="relative py-20 md:py-36 overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-b from-transparent via-cosmic-purple/15 to-vanta" />
-        <div className="absolute inset-0 z-0 opacity-40">
-          <ShaderBackground variant="golden" intensity={0.6} />
-        </div>
+        {!isMobile && (
+          <div className="absolute inset-0 z-0 opacity-40">
+            <ShaderBackground variant="golden" intensity={0.6} />
+          </div>
+        )}
 
         <div className="container mx-auto px-6 text-center relative z-10">
           <ScrollReveal variant="scale">

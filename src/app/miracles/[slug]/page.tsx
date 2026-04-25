@@ -15,6 +15,7 @@ import { getCategoryLabel, getVisualizationColor } from '@/lib/utils';
 import MiracleVisual from '@/components/visuals/MiracleVisualRegistry';
 import { ScrollReveal } from '@/components/effects/ScrollAnimations';
 import { AnimatedGradientText } from '@/components/effects/TextEffects';
+import { useIsMobile } from '@/hooks/useIsMobile';
 
 /* Dynamic 3D \u2014 no SSR */
 const ParticleField = dynamic(() => import('@/components/effects/ParticleField'), { ssr: false });
@@ -45,11 +46,12 @@ export default function MiracleDetailPage({ params }: PageProps) {
   const miracleVideos = videos.filter((v) => miracle.videoIds?.includes(v.id));
   const accentColor = getVisualizationColor(miracle.visualizationType);
   const particleVariant = categoryParticle[miracle.category] || 'stars';
+  const isMobile = useIsMobile();
 
   return (
     <main className="min-h-screen" dir="rtl">
       {/* ========= IMMERSIVE HERO ========= */}
-      <section className="relative isolate h-[75vh] min-h-[550px] flex items-end overflow-hidden">
+      <section className="relative isolate h-[60vh] sm:h-[75vh] min-h-[480px] flex items-end overflow-hidden">
         {/* Miracle-specific 3D visual \u2014 unique per miracle */}
         <div aria-hidden className="absolute inset-0 z-0 pointer-events-none">
           <div className="absolute inset-x-0 top-6 bottom-36 sm:top-8 sm:bottom-40 lg:bottom-44">
@@ -57,10 +59,12 @@ export default function MiracleDetailPage({ params }: PageProps) {
           </div>
         </div>
 
-        {/* Particle overlay on top of the visual */}
-        <div className="absolute inset-0 z-[1] pointer-events-none">
-          <ParticleField variant={particleVariant} density={0.8} speed={0.4} />
-        </div>
+        {/* Particle overlay on top of the visual — disabled on mobile for performance */}
+        {!isMobile && (
+          <div className="absolute inset-0 z-[1] pointer-events-none">
+            <ParticleField variant={particleVariant} density={0.8} speed={0.4} />
+          </div>
+        )}
 
         {/* Multi-layer gradient overlays for depth — kept subtle so visual can breathe */}
         <div className="absolute inset-0 z-[2] bg-gradient-to-t from-vanta via-vanta/10 to-transparent" />
@@ -106,10 +110,12 @@ export default function MiracleDetailPage({ params }: PageProps) {
 
       {/* ========= CONTENT ========= */}
       <section className="relative py-16">
-        {/* Subtle background pattern */}
-        <div className="absolute inset-0 z-0 opacity-30 pointer-events-none">
-          <SacredGeometry color={accentColor} intensity={0.15} />
-        </div>
+        {/* Subtle background pattern — disabled on mobile */}
+        {!isMobile && (
+          <div className="absolute inset-0 z-0 opacity-30 pointer-events-none">
+            <SacredGeometry color={accentColor} intensity={0.15} />
+          </div>
+        )}
 
         <div className="relative z-10 container mx-auto px-6">
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
