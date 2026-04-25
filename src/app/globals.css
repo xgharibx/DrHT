@@ -1,0 +1,671 @@
+@import url('https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400;1,700&family=Cairo:wght@200;300;400;500;600;700;800;900;1000&family=Tajawal:wght@200;300;400;500;700;800;900&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ============================================================
+   ROOT VARIABLES & FOUNDATION
+   ============================================================ */
+:root {
+  --color-vanta: #0a0a0f;
+  --color-deep-navy: #0d1117;
+  --color-space-blue: #161b22;
+  --color-cosmic-purple: #1a1040;
+  --color-gold-primary: #d4a853;
+  --color-gold-light: #f0d68a;
+  --color-gold-glow: rgba(212, 168, 83, 0.4);
+  --color-verse-green: #2dd4a8;
+  --cursor-x: 50%;
+  --cursor-y: 50%;
+}
+
+/* ============================================================
+   BASE STYLES
+   ============================================================ */
+@layer base {
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  html {
+    scroll-behavior: smooth;
+    overflow-x: hidden;
+  }
+
+  body {
+    @apply bg-vanta text-text-primary font-cairo;
+    direction: rtl;
+    min-height: 100vh;
+    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* Premium Arabic Scrollbar */
+  ::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: var(--color-deep-navy);
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: linear-gradient(180deg, var(--color-gold-primary), var(--color-cosmic-purple));
+    border-radius: 3px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: var(--color-gold-light);
+  }
+
+  /* Text selection */
+  ::selection {
+    background: rgba(212, 168, 83, 0.3);
+    color: var(--color-gold-light);
+  }
+}
+
+/* ============================================================
+   COMPONENT STYLES
+   ============================================================ */
+@layer components {
+  /* Quranic Verse Display */
+  .verse-text {
+    @apply font-amiri text-verse-xl leading-relaxed;
+    text-shadow: 0 0 40px rgba(45, 212, 168, 0.15);
+    letter-spacing: 0.03em;
+    word-spacing: 0.15em;
+  }
+
+  .verse-text-large {
+    @apply font-amiri text-verse-2xl leading-relaxed;
+    text-shadow: 0 0 60px rgba(45, 212, 168, 0.2);
+  }
+
+  /* Gold gradient text */
+  .text-gold-gradient {
+    background: linear-gradient(135deg, #d4a853, #f0d68a, #d4a853);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  /* Celestial gold shimmer animation */
+  .text-shimmer {
+    background: linear-gradient(
+      90deg,
+      #d4a853 0%,
+      #f0d68a 25%,
+      #ffffff 50%,
+      #f0d68a 75%,
+      #d4a853 100%
+    );
+    background-size: 200% auto;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    animation: shimmer 3s linear infinite;
+  }
+
+  /* Glassmorphism card */
+  .glass-card {
+    @apply relative overflow-hidden rounded-2xl;
+    background: rgba(16, 20, 28, 0.85);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(212, 168, 83, 0.12);
+    transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    z-index: 1;
+    isolation: isolate;
+  }
+
+  .glass-card:hover {
+    border-color: rgba(212, 168, 83, 0.25);
+    box-shadow: 0 0 40px rgba(212, 168, 83, 0.08), inset 0 0 40px rgba(212, 168, 83, 0.03);
+    transform: translateY(-3px) scale(1.01);
+    z-index: 20;
+  }
+
+  /* Premium button */
+  .btn-gold {
+    @apply relative inline-flex items-center justify-center px-8 py-3 rounded-xl font-cairo font-semibold text-vanta overflow-hidden;
+    background: linear-gradient(135deg, #d4a853, #f0d68a);
+    transition: all 0.3s ease;
+  }
+
+  .btn-gold:hover {
+    box-shadow: 0 0 30px rgba(212, 168, 83, 0.5);
+    transform: translateY(-1px);
+  }
+
+  .btn-gold::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+    transform: translateX(-100%);
+    transition: transform 0.6s ease;
+  }
+
+  .btn-gold:hover::after {
+    transform: translateX(100%);
+  }
+
+  /* Outlined gold button */
+  .btn-gold-outline {
+    @apply relative inline-flex items-center justify-center px-8 py-3 rounded-xl font-cairo font-semibold overflow-hidden;
+    color: var(--color-gold-primary);
+    border: 1px solid rgba(212, 168, 83, 0.3);
+    background: transparent;
+    transition: all 0.3s ease;
+  }
+
+  .btn-gold-outline:hover {
+    background: rgba(212, 168, 83, 0.1);
+    border-color: var(--color-gold-primary);
+    box-shadow: 0 0 20px rgba(212, 168, 83, 0.2);
+  }
+
+  /* Cursor-reactive light */
+  .cursor-light {
+    position: fixed;
+    pointer-events: none;
+    width: 600px;
+    height: 600px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(212, 168, 83, 0.06) 0%, transparent 70%);
+    transform: translate(-50%, -50%);
+    z-index: 1;
+    transition: opacity 0.3s ease;
+  }
+
+  /* Section divider with Islamic geometric pattern hint */
+  .divine-divider {
+    @apply relative w-full h-px my-16;
+    background: linear-gradient(90deg, transparent, var(--color-gold-primary), transparent);
+    opacity: 0.3;
+  }
+
+  .divine-divider::before {
+    content: '✦';
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    color: var(--color-gold-primary);
+    font-size: 1.2rem;
+    background: var(--color-vanta);
+    padding: 0 1rem;
+  }
+
+  /* Category badge */
+  .category-badge {
+    @apply inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-sm font-tajawal;
+    background: rgba(212, 168, 83, 0.08);
+    border: 1px solid rgba(212, 168, 83, 0.15);
+    color: var(--color-gold-light);
+  }
+
+  /* Floating particles container */
+  .particles-container {
+    @apply fixed inset-0 pointer-events-none overflow-hidden;
+    z-index: 0;
+  }
+
+  /* WebGL canvas wrapper */
+  .canvas-wrapper {
+    @apply fixed inset-0;
+    z-index: 0;
+  }
+
+  /* Content over 3D */
+  .content-overlay {
+    @apply relative z-10;
+  }
+
+  .miracle-visual-stage p,
+  .miracle-visual-stage h1,
+  .miracle-visual-stage h2,
+  .miracle-visual-stage h3,
+  .miracle-visual-stage h4,
+  .miracle-visual-stage h5,
+  .miracle-visual-stage h6 {
+    unicode-bidi: plaintext;
+  }
+
+  /* Miracle card glow on hover */
+  .miracle-glow {
+    position: relative;
+  }
+
+  .miracle-glow::before {
+    content: '';
+    position: absolute;
+    inset: -1px;
+    border-radius: inherit;
+    background: conic-gradient(
+      from 0deg,
+      transparent,
+      rgba(212, 168, 83, 0.3),
+      transparent,
+      rgba(45, 212, 168, 0.2),
+      transparent
+    );
+    opacity: 0;
+    transition: opacity 0.5s ease;
+    z-index: -1;
+  }
+
+  .miracle-glow:hover::before {
+    opacity: 1;
+    animation: spin 4s linear infinite;
+  }
+
+  @keyframes spin {
+    to { transform: rotate(360deg); }
+  }
+}
+
+/* ============================================================
+   UTILITY STYLES
+   ============================================================ */
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+
+  .animate-delay-100 {
+    animation-delay: 100ms;
+  }
+
+  .animate-delay-200 {
+    animation-delay: 200ms;
+  }
+
+  .animate-delay-300 {
+    animation-delay: 300ms;
+  }
+
+  .animate-delay-500 {
+    animation-delay: 500ms;
+  }
+
+  .animate-delay-700 {
+    animation-delay: 700ms;
+  }
+
+  .animate-delay-1000 {
+    animation-delay: 1000ms;
+  }
+
+  /* Noise texture overlay */
+  .noise-overlay::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    opacity: 0.015;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 9999;
+  }
+}
+
+/* ============================================================
+   PAGE TRANSITION ANIMATIONS
+   ============================================================ */
+.page-enter {
+  opacity: 0;
+  transform: translateY(20px);
+}
+
+.page-enter-active {
+  opacity: 1;
+  transform: translateY(0);
+  transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.page-exit {
+  opacity: 1;
+}
+
+.page-exit-active {
+  opacity: 0;
+  transform: translateY(-20px);
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ============================================================
+   EXTREME VISUAL EFFECTS
+   ============================================================ */
+
+/* Gradient shift for animated gradient text */
+@keyframes gradient-shift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* Glitch text effect */
+.glitch-text {
+  position: relative;
+  display: inline-block;
+}
+
+.glitch-text::before,
+.glitch-text::after {
+  content: attr(data-text);
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+}
+
+.glitch-text:hover::before {
+  animation: glitch-1 0.3s infinite;
+  color: #d4a853;
+  opacity: 0.8;
+}
+
+.glitch-text:hover::after {
+  animation: glitch-2 0.3s infinite;
+  color: #2dd4a8;
+  opacity: 0.8;
+}
+
+@keyframes glitch-1 {
+  0% { clip-path: inset(40% 0 61% 0); transform: translate(-2px, -1px); }
+  20% { clip-path: inset(92% 0 1% 0); transform: translate(1px, 2px); }
+  40% { clip-path: inset(43% 0 1% 0); transform: translate(-1px, 3px); }
+  60% { clip-path: inset(25% 0 58% 0); transform: translate(3px, 1px); }
+  80% { clip-path: inset(54% 0 7% 0); transform: translate(-3px, -2px); }
+  100% { clip-path: inset(58% 0 43% 0); transform: translate(2px, -1px); }
+}
+
+@keyframes glitch-2 {
+  0% { clip-path: inset(65% 0 13% 0); transform: translate(2px, 1px); }
+  20% { clip-path: inset(15% 0 62% 0); transform: translate(-1px, -2px); }
+  40% { clip-path: inset(82% 0 2% 0); transform: translate(1px, -3px); }
+  60% { clip-path: inset(31% 0 28% 0); transform: translate(-3px, -1px); }
+  80% { clip-path: inset(7% 0 72% 0); transform: translate(3px, 2px); }
+  100% { clip-path: inset(41% 0 53% 0); transform: translate(-2px, 1px); }
+}
+
+/* Morphing digit animation */
+.morphing-digit {
+  display: inline-block;
+  animation: morphDigitIn 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+@keyframes morphDigitIn {
+  0% { transform: translateY(100%) rotateX(-90deg); opacity: 0; }
+  100% { transform: translateY(0) rotateX(0); opacity: 1; }
+}
+
+/* Floating label */
+.floating-label {
+  animation: floatLabel 3s ease-in-out infinite;
+}
+
+@keyframes floatLabel {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+
+/* Cinematic section reveal */
+.cinematic-reveal {
+  clip-path: polygon(0 0, 100% 0, 100% 0, 0 0);
+  transition: clip-path 1.2s cubic-bezier(0.77, 0, 0.175, 1);
+}
+
+.cinematic-reveal.revealed {
+  clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%);
+}
+
+/* Holographic card effect */
+.holographic-card {
+  position: relative;
+  overflow: hidden;
+  background: rgba(18, 22, 30, 0.9);
+  border: 1px solid rgba(212, 168, 83, 0.1);
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.holographic-card:hover {
+  border-color: rgba(212, 168, 83, 0.2);
+  box-shadow: 0 0 40px rgba(212, 168, 83, 0.05), inset 0 0 40px rgba(212, 168, 83, 0.02);
+}
+
+.holographic-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    105deg,
+    transparent 40%,
+    rgba(212, 168, 83, 0.05) 45%,
+    rgba(212, 168, 83, 0.15) 50%,
+    rgba(212, 168, 83, 0.05) 55%,
+    transparent 60%
+  );
+  transform: translateX(-100%);
+  transition: transform 0.8s ease;
+  z-index: 1;
+  pointer-events: none;
+}
+
+.holographic-card:hover::before {
+  transform: translateX(100%);
+}
+
+/* Premium glass with blur layers */
+.glass-premium {
+    background: rgba(22, 27, 34, 0.85);
+    backdrop-filter: blur(24px) saturate(160%);
+    border: 1px solid rgba(212, 168, 83, 0.15);
+    box-shadow:
+      0 0 0 1px rgba(255, 255, 255, 0.04),
+      0 8px 32px rgba(0, 0, 0, 0.4),
+      inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  }
+
+  .glass-premium:hover {
+    border-color: rgba(212, 168, 83, 0.25);
+    box-shadow:
+      0 0 0 1px rgba(212, 168, 83, 0.08),
+      0 12px 40px rgba(0, 0, 0, 0.5),
+      0 0 60px rgba(212, 168, 83, 0.04),
+      inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  }
+
+/* Glow ring animation */
+.glow-ring {
+  position: relative;
+}
+
+.glow-ring::after {
+  content: '';
+  position: absolute;
+  inset: -3px;
+  border-radius: inherit;
+  background: conic-gradient(
+    from var(--glow-angle, 0deg),
+    #d4a853,
+    #2dd4a8,
+    #4a90d9,
+    #a855f7,
+    #d4a853
+  );
+  opacity: 0;
+  transition: opacity 0.5s ease;
+  z-index: -1;
+  filter: blur(8px);
+  animation: glowRotate 4s linear infinite;
+}
+
+.glow-ring:hover::after {
+  opacity: 0.6;
+}
+
+@keyframes glowRotate {
+  to { --glow-angle: 360deg; }
+}
+
+@property --glow-angle {
+  syntax: '<angle>';
+  initial-value: 0deg;
+  inherits: false;
+}
+
+/* Breathing glow */
+.breathing-glow {
+  animation: breathe 4s ease-in-out infinite;
+}
+
+@keyframes breathe {
+  0%, 100% { box-shadow: 0 0 20px rgba(212, 168, 83, 0.1), 0 0 60px rgba(212, 168, 83, 0.05); }
+  50% { box-shadow: 0 0 40px rgba(212, 168, 83, 0.2), 0 0 80px rgba(212, 168, 83, 0.1); }
+}
+
+/* Verse glow pulse */
+.verse-glow-pulse {
+  animation: verseGlow 3s ease-in-out infinite;
+}
+
+@keyframes verseGlow {
+  0%, 100% { text-shadow: 0 0 20px rgba(45, 212, 168, 0.15); }
+  50% { text-shadow: 0 0 40px rgba(45, 212, 168, 0.3), 0 0 80px rgba(45, 212, 168, 0.1); }
+}
+
+/* Cosmic gradient border */
+.cosmic-border {
+  position: relative;
+}
+
+.cosmic-border::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(135deg, rgba(212, 168, 83, 0.3), rgba(45, 212, 168, 0.2), rgba(74, 144, 217, 0.3));
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+}
+
+/* Particle trail cursor effect */
+.particle-cursor {
+  position: relative;
+}
+
+.particle-cursor::after {
+  content: '';
+  position: fixed;
+  width: 400px;
+  height: 400px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(212, 168, 83, 0.04) 0%, transparent 70%);
+  pointer-events: none;
+  transform: translate(-50%, -50%);
+  left: var(--cursor-x);
+  top: var(--cursor-y);
+  z-index: 1;
+  transition: width 0.3s, height 0.3s;
+  mix-blend-mode: screen;
+}
+
+/* Section separator wave */
+.wave-separator {
+  position: relative;
+  overflow: hidden;
+}
+
+.wave-separator::after {
+  content: '';
+  position: absolute;
+  bottom: -1px;
+  left: 0;
+  right: 0;
+  height: 60px;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1440 60'%3E%3Cpath fill='%230a0a0f' d='M0,30 C360,60 720,0 1080,30 C1260,45 1350,30 1440,30 L1440,60 L0,60 Z'/%3E%3C/svg%3E") no-repeat center bottom;
+  background-size: cover;
+}
+
+/* Shine on scroll */
+.scroll-shine {
+  background-image: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(212, 168, 83, 0.08) 50%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  background-size: 200% 100%;
+  animation: scrollShine 3s ease-in-out infinite;
+}
+
+@keyframes scrollShine {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* Text shadow depth for Arabic */
+.arabic-depth {
+  text-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.5),
+    0 0 40px rgba(212, 168, 83, 0.1);
+}
+
+/* Frosted glass variant */
+.frosted-glass {
+  background: rgba(13, 17, 23, 0.4);
+  backdrop-filter: blur(30px) saturate(150%);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+/* ============================================================
+   THREE.JS CANVAS OVERRIDES
+   ============================================================ */
+canvas {
+  outline: none !important;
+}
+
+/* ============================================================
+   RTL SPECIFIC OVERRIDES 
+   ============================================================ */
+[dir="rtl"] .text-left {
+  text-align: right;
+}
+
+[dir="rtl"] .text-right {
+  text-align: left;
+}
+
+/* ============================================================
+   LENIS SMOOTH SCROLL
+   ============================================================ */
+html.lenis, html.lenis body {
+  height: auto;
+}
+
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+
+.lenis.lenis-smooth [data-lenis-prevent] {
+  overscroll-behavior: contain;
+}
+
+.lenis.lenis-stopped {
+  overflow: hidden;
+}
+
+.lenis.lenis-scrolling iframe {
+  pointer-events: none;
+}
