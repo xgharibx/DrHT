@@ -1,65 +1,480 @@
 ﻿'use client';
-import { motion } from 'framer-motion';
 
-export default function SolarApexVisual({ className = '' }: { className?: string }) {
+import { useEffect, useRef } from 'react';
+import { motion } from 'framer-motion';
+import type { MiracleVisualProps } from '../MiracleVisualRegistry';
+
+// ☀️ سير الشمس إلى مستقرها — The Sun's Journey to the Solar Apex
+// "وَالشَّمْسُ تَجْرِي لِمُسْتَقَرٍّ لَّهَا ذَٰلِكَ تَقْدِيرُ الْعَزِيزِ الْعَلِيمِ"
+// The sun moves at 19.7 km/s toward the Solar Apex in Hercules
+// Discovered by William Herschel in 1783 — 1100+ years after the Quran
+
+export default function SolarApexVisual({ className }: MiracleVisualProps) {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    let animId: number;
+    let time = 0;
+
+    // ── Background star field ──────────────────────────────────
+    const bgStars = Array.from({ length: 500 }, () => ({
+      x: Math.random(),
+      y: Math.random(),
+      size: Math.pow(Math.random(), 3) * 2.5 + 0.3,
+      brightness: Math.random() * 0.6 + 0.2,
+      twinkle: Math.random() * Math.PI * 2,
+      twinkleSpeed: Math.random() * 2 + 0.5,
+      hue: Math.random() > 0.85 ? 40 : Math.random() > 0.7 ? 200 : 0,
+    }));
+
+    // ── Passing stars (sun moving through space — parallax) ───
+    const passingStars = Array.from({ length: 120 }, () => ({
+      x: Math.random(),
+      y: Math.random(),
+      speedX: -(Math.random() * 0.006 + 0.002), // moving away behind sun
+      speedY: (Math.random() - 0.5) * 0.002,
+      size: Math.random() * 1.8 + 0.4,
+      brightness: Math.random() * 0.7 + 0.3,
+      trailLength: Math.random() * 0.025 + 0.005,
+    }));
+
+    // ── Milky Way band dust clouds ────────────────────────────
+    const dustClouds = Array.from({ length: 30 }, (_, i) => ({
+      x: Math.random(),
+      y: 0.35 + Math.sin(i * 0.8) * 0.25 + Math.random() * 0.12,
+      rx: Math.random() * 0.15 + 0.06,
+      ry: Math.random() * 0.04 + 0.02,
+      opacity: Math.random() * 0.07 + 0.02,
+      hue: Math.random() > 0.5 ? 200 : 40,
+    }));
+
+    const draw = () => {
+      time += 0.007;
+
+      const w = canvas.width;
+      const h = canvas.height;
+      const dpr = window.devicePixelRatio || 1;
+
+      // ── Deep space background ────────────────────────────────
+      const bgGrad = ctx.createLinearGradient(0, 0, 0, h);
+      bgGrad.addColorStop(0, '#03030d');
+      bgGrad.addColorStop(0.4, '#050510');
+      bgGrad.addColorStop(0.7, '#080514');
+      bgGrad.addColorStop(1, '#020208');
+      ctx.fillStyle = bgGrad;
+      ctx.fillRect(0, 0, w, h);
+
+      // ── Milky Way diffuse glow band ──────────────────────────
+      const mwY = h * 0.52;
+      const mwGrad = ctx.createLinearGradient(0, mwY - h * 0.22, 0, mwY + h * 0.22);
+      mwGrad.addColorStop(0, 'rgba(30,40,80,0)');
+      mwGrad.addColorStop(0.4, 'rgba(40,50,110,0.12)');
+      mwGrad.addColorStop(0.5, 'rgba(60,70,140,0.18)');
+      mwGrad.addColorStop(0.6, 'rgba(40,50,110,0.12)');
+      mwGrad.addColorStop(1, 'rgba(30,40,80,0)');
+      ctx.fillStyle = mwGrad;
+      ctx.fillRect(0, 0, w, h);
+
+      // ── Dust clouds in Milky Way ─────────────────────────────
+      dustClouds.forEach((d) => {
+        ctx.save();
+        ctx.globalAlpha = d.opacity;
+        const dGrad = ctx.createRadialGradient(
+          d.x * w, d.y * h, 0,
+          d.x * w, d.y * h, d.rx * w
+        );
+        const c = d.hue === 200 ? '74,100,200' : '180,140,60';
+        dGrad.addColorStop(0, `rgba(${c},0.5)`);
+        dGrad.addColorStop(1, 'rgba(0,0,0,0)');
+        ctx.fillStyle = dGrad;
+        ctx.beginPath();
+        ctx.ellipse(d.x * w, d.y * h, d.rx * w, d.ry * h, 0, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+      });
+
+      // ── Static background stars ──────────────────────────────
+      bgStars.forEach((s) => {
+        const twinkle = Math.sin(time * s.twinkleSpeed + s.twinkle) * 0.25 + 0.75;
+        const alpha = s.brightness * twinkle;
+        const hsl = s.hue === 40 ? `255,220,100` : s.hue === 200 ? `150,190,255` : `255,255,255`;
+        ctx.beginPath();
+        ctx.arc(s.x * w, s.y * h, s.size, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(${hsl},${alpha})`;
+        ctx.fill();
+        // glow for brighter stars
+        if (s.size > 1.6 && alpha > 0.5) {
+          ctx.beginPath();
+          ctx.arc(s.x * w, s.y * h, s.size * 3.5, 0, Math.PI * 2);
+          ctx.fillStyle = `rgba(${hsl},${alpha * 0.08})`;
+          ctx.fill();
+        }
+      });
+
+      // ── Passing stars with trails (parallax: sun moving) ─────
+      passingStars.forEach((s) => {
+        s.x += s.speedX;
+        s.y += s.speedY;
+        // Wrap
+        if (s.x < -0.05) { s.x = 1.05; s.y = Math.random(); }
+        if (s.y < 0) s.y = 1;
+        if (s.y > 1) s.y = 0;
+
+        const px = s.x * w;
+        const py = s.y * h;
+        const trailX = px + s.trailLength * w;
+
+        const trailGrad = ctx.createLinearGradient(trailX, py, px, py);
+        trailGrad.addColorStop(0, 'rgba(255,255,255,0)');
+        trailGrad.addColorStop(1, `rgba(255,255,255,${s.brightness * 0.55})`);
+        ctx.strokeStyle = trailGrad;
+        ctx.lineWidth = s.size * 0.6;
+        ctx.beginPath();
+        ctx.moveTo(trailX, py);
+        ctx.lineTo(px, py);
+        ctx.stroke();
+
+        ctx.beginPath();
+        ctx.arc(px, py, s.size, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(255,255,255,${s.brightness * 0.8})`;
+        ctx.fill();
+      });
+
+      // ── Galactic center glow (background, lower-right) ───────
+      const gcx = w * 0.72, gcy = h * 0.62;
+      const gcGrad = ctx.createRadialGradient(gcx, gcy, 0, gcx, gcy, w * 0.28);
+      gcGrad.addColorStop(0, 'rgba(255,200,80,0.10)');
+      gcGrad.addColorStop(0.4, 'rgba(200,140,40,0.05)');
+      gcGrad.addColorStop(1, 'rgba(0,0,0,0)');
+      ctx.fillStyle = gcGrad;
+      ctx.fillRect(0, 0, w, h);
+
+      // ── Galactic orbit arc ───────────────────────────────────
+      // The sun orbits the galactic center — show a sweeping arc
+      const orbitCx = gcx, orbitCy = gcy;
+      const orbitRx = w * 0.42, orbitRy = h * 0.28;
+      ctx.save();
+      ctx.setLineDash([4, 8]);
+      ctx.strokeStyle = 'rgba(212,168,83,0.12)';
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.ellipse(orbitCx, orbitCy, orbitRx, orbitRy, -0.25, 0, Math.PI * 2);
+      ctx.stroke();
+      ctx.setLineDash([]);
+      ctx.restore();
+
+      // ── Sun position (moves along galactic orbit over time) ───
+      const orbitAngle = time * 0.04 - 1.8; // slow orbit progression
+      const sunX = orbitCx + Math.cos(orbitAngle) * orbitRx;
+      const sunY = orbitCy + Math.sin(orbitAngle) * orbitRy;
+
+      // ── Sun trail (galactic orbit path behind it) ─────────────
+      for (let i = 1; i <= 30; i++) {
+        const pastAngle = orbitAngle - i * 0.04;
+        const px = orbitCx + Math.cos(pastAngle) * orbitRx;
+        const py = orbitCy + Math.sin(pastAngle) * orbitRy;
+        const alpha = (1 - i / 30) * 0.18;
+        ctx.beginPath();
+        ctx.arc(px, py, 2, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(255,200,80,${alpha})`;
+        ctx.fill();
+      }
+
+      // ── Solar Apex destination glow (upper-left, direction of motion) ──
+      const apexX = w * 0.18, apexY = h * 0.22;
+
+      // Pulsing target rings
+      for (let i = 0; i < 3; i++) {
+        const phase = (time * 0.6 + i * 0.33) % 1;
+        const r = phase * 45 + 8;
+        const alpha = (1 - phase) * 0.35;
+        ctx.beginPath();
+        ctx.arc(apexX, apexY, r, 0, Math.PI * 2);
+        ctx.strokeStyle = `rgba(255,160,40,${alpha})`;
+        ctx.lineWidth = 1.5;
+        ctx.stroke();
+      }
+      // Core apex glow
+      const apexGrad = ctx.createRadialGradient(apexX, apexY, 0, apexX, apexY, 30);
+      apexGrad.addColorStop(0, 'rgba(255,200,100,0.7)');
+      apexGrad.addColorStop(0.3, 'rgba(255,150,40,0.3)');
+      apexGrad.addColorStop(1, 'rgba(255,120,20,0)');
+      ctx.fillStyle = apexGrad;
+      ctx.beginPath();
+      ctx.arc(apexX, apexY, 30, 0, Math.PI * 2);
+      ctx.fill();
+      // Diamond crosshair
+      ctx.save();
+      ctx.translate(apexX, apexY);
+      ctx.rotate(Math.PI / 4);
+      ctx.strokeStyle = 'rgba(255,200,80,0.7)';
+      ctx.lineWidth = 1.5;
+      for (let i = 0; i < 4; i++) {
+        ctx.beginPath();
+        ctx.moveTo(0, 6);
+        ctx.lineTo(0, 18);
+        ctx.stroke();
+        ctx.rotate(Math.PI / 2);
+      }
+      ctx.restore();
+
+      // ── Arrow: Sun → Solar Apex (proper motion vector) ───────
+      const dx = apexX - sunX, dy = apexY - sunY;
+      const dist = Math.sqrt(dx * dx + dy * dy);
+      const arrowEndX = sunX + (dx / dist) * (dist - 32);
+      const arrowEndY = sunY + (dy / dist) * (dist - 32);
+      const arrowStartX = sunX + (dx / dist) * 38;
+      const arrowStartY = sunY + (dy / dist) * 38;
+
+      // Arrow line with animated dash
+      ctx.save();
+      const dashOffset = (time * 40) % 16;
+      ctx.setLineDash([6, 10]);
+      ctx.lineDashOffset = -dashOffset;
+      const arrowGrad = ctx.createLinearGradient(arrowStartX, arrowStartY, arrowEndX, arrowEndY);
+      arrowGrad.addColorStop(0, 'rgba(255,200,80,0.25)');
+      arrowGrad.addColorStop(1, 'rgba(255,160,40,0.75)');
+      ctx.strokeStyle = arrowGrad;
+      ctx.lineWidth = 1.8;
+      ctx.beginPath();
+      ctx.moveTo(arrowStartX, arrowStartY);
+      ctx.lineTo(arrowEndX, arrowEndY);
+      ctx.stroke();
+      ctx.setLineDash([]);
+
+      // Arrowhead
+      const headAngle = Math.atan2(dy, dx);
+      ctx.translate(arrowEndX, arrowEndY);
+      ctx.rotate(headAngle);
+      ctx.fillStyle = 'rgba(255,180,60,0.8)';
+      ctx.beginPath();
+      ctx.moveTo(0, 0);
+      ctx.lineTo(-10, -4);
+      ctx.lineTo(-10, 4);
+      ctx.closePath();
+      ctx.fill();
+      ctx.restore();
+
+      // ── Sun rendering ─────────────────────────────────────────
+      // Outer corona
+      const coronaGrad = ctx.createRadialGradient(sunX, sunY, 0, sunX, sunY, 55);
+      coronaGrad.addColorStop(0, 'rgba(255,230,120,0.25)');
+      coronaGrad.addColorStop(0.4, 'rgba(255,180,40,0.10)');
+      coronaGrad.addColorStop(0.7, 'rgba(255,140,20,0.04)');
+      coronaGrad.addColorStop(1, 'rgba(255,100,0,0)');
+      ctx.fillStyle = coronaGrad;
+      ctx.beginPath();
+      ctx.arc(sunX, sunY, 55, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Solar flares (6 directional rays)
+      for (let i = 0; i < 6; i++) {
+        const angle = (i / 6) * Math.PI * 2 + time * 0.3;
+        const flareLen = (Math.sin(time * 1.5 + i * 1.1) * 0.3 + 0.7) * 22;
+        ctx.save();
+        ctx.translate(sunX, sunY);
+        ctx.rotate(angle);
+        const flareGrad = ctx.createLinearGradient(0, 0, flareLen, 0);
+        flareGrad.addColorStop(0, 'rgba(255,220,80,0.5)');
+        flareGrad.addColorStop(1, 'rgba(255,140,20,0)');
+        ctx.strokeStyle = flareGrad;
+        ctx.lineWidth = 2.5;
+        ctx.beginPath();
+        ctx.moveTo(18, 0);
+        ctx.lineTo(18 + flareLen, 0);
+        ctx.stroke();
+        ctx.restore();
+      }
+
+      // Sun body gradient
+      const sunGrad = ctx.createRadialGradient(sunX - 5, sunY - 5, 2, sunX, sunY, 20);
+      sunGrad.addColorStop(0, 'rgba(255,255,200,1)');
+      sunGrad.addColorStop(0.3, 'rgba(255,230,100,1)');
+      sunGrad.addColorStop(0.7, 'rgba(255,170,30,0.95)');
+      sunGrad.addColorStop(1, 'rgba(230,110,10,0.8)');
+      ctx.fillStyle = sunGrad;
+      ctx.beginPath();
+      ctx.arc(sunX, sunY, 20, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Sun surface shimmer
+      const pulseR = 20 + Math.sin(time * 3) * 1.5;
+      ctx.beginPath();
+      ctx.arc(sunX, sunY, pulseR, 0, Math.PI * 2);
+      ctx.strokeStyle = 'rgba(255,240,160,0.4)';
+      ctx.lineWidth = 1.5;
+      ctx.stroke();
+
+      // ── Galactic center label ─────────────────────────────────
+      const gcLabelAlpha = 0.5;
+      ctx.save();
+      const gcLabelGrad = ctx.createRadialGradient(gcx, gcy, 0, gcx, gcy, 18);
+      gcLabelGrad.addColorStop(0, `rgba(255,200,80,${gcLabelAlpha * 0.6})`);
+      gcLabelGrad.addColorStop(1, 'rgba(255,150,30,0)');
+      ctx.fillStyle = gcLabelGrad;
+      ctx.beginPath();
+      ctx.arc(gcx, gcy, 18, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.font = `${10 * dpr}px sans-serif`;
+      ctx.fillStyle = `rgba(255,200,80,${gcLabelAlpha * 0.7})`;
+      ctx.textAlign = 'center';
+      ctx.fillText('Galactic Center', gcx, gcy + 28 * dpr);
+      ctx.restore();
+
+      // ── Speed label on arrow (mid-point) ─────────────────────
+      const midArrowX = (arrowStartX + arrowEndX) / 2;
+      const midArrowY = (arrowStartY + arrowEndY) / 2;
+      ctx.save();
+      ctx.fillStyle = 'rgba(12,12,25,0.82)';
+      const lw = 90 * dpr, lh = 20 * dpr;
+      ctx.beginPath();
+      ctx.roundRect(midArrowX - lw / 2, midArrowY - lh / 2 - 4, lw, lh, 4);
+      ctx.fill();
+      ctx.font = `bold ${9 * dpr}px sans-serif`;
+      ctx.fillStyle = 'rgba(255,200,80,0.9)';
+      ctx.textAlign = 'center';
+      ctx.fillText('19.7 km/s → Solar Apex', midArrowX, midArrowY + 2 * dpr);
+      ctx.restore();
+
+      animId = requestAnimationFrame(draw);
+    };
+
+    let started = false;
+    const observer = new ResizeObserver(() => {
+      const dpr = window.devicePixelRatio || 1;
+      canvas.width = canvas.offsetWidth * dpr;
+      canvas.height = canvas.offsetHeight * dpr;
+      ctx.scale(dpr, dpr);
+      if (!started) { started = true; draw(); }
+    });
+    observer.observe(canvas);
+
+    return () => {
+      cancelAnimationFrame(animId);
+      observer.disconnect();
+    };
+  }, []);
+
   return (
-    <div className={`relative w-full h-full overflow-hidden ${className}`}>
-      <div className="absolute inset-0 bg-gradient-to-b from-[#1a0f00] via-[#0a0600] to-black" />
-      {/* Sun moving toward apex SVG */}
-      <motion.div className="absolute bottom-10 left-1/2 -translate-x-1/2"
-        initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 1 }}>
-        <svg viewBox="0 0 300 200" className="w-72 h-48" fill="none">
-          {/* Galactic orbit path */}
-          <ellipse cx="150" cy="120" rx="130" ry="50" stroke="rgba(200,160,50,0.15)" strokeWidth="1" strokeDasharray="5,5" fill="none" />
-          {/* Sun */}
-          <motion.g animate={{ cx: [80, 90, 80] }} transition={{ duration: 4, repeat: Infinity }}>
-            <circle cx="80" cy="95" r="18" fill="rgba(255,200,50,0.4)" />
-            <circle cx="80" cy="95" r="12" fill="rgba(255,220,80,0.5)" />
-            <circle cx="80" cy="95" r="25" fill="rgba(255,180,30,0.08)" />
-          </motion.g>
-          {/* Motion arrow */}
-          <motion.path d="M100 90 L160 75" stroke="rgba(255,200,50,0.5)" strokeWidth="2" markerEnd="url(#arw)" fill="none"
-            animate={{ opacity: [0.3, 0.7, 0.3] }} transition={{ duration: 2, repeat: Infinity }} />
-          <defs><marker id="arw" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><path d="M0 0 L8 3 L0 6Z" fill="rgba(255,200,50,0.5)" /></marker></defs>
-          {/* Apex target */}
-          <circle cx="200" cy="68" r="5" fill="rgba(255,150,50,0.3)" stroke="rgba(255,180,80,0.5)" strokeWidth="1" />
-          <text x="200" y="58" textAnchor="middle" fill="rgba(255,180,80,0.5)" fontSize="8">Apex</text>
-          {/* Galactic center */}
-          <circle cx="150" cy="120" r="6" fill="rgba(255,200,100,0.15)" stroke="rgba(255,200,100,0.3)" strokeWidth="0.5" />
-          <text x="150" y="145" textAnchor="middle" fill="rgba(255,200,100,0.3)" fontSize="7">Galactic Center</text>
-        </svg>
+    <div className={`relative w-full h-full overflow-hidden ${className || ''}`}
+      style={{ background: '#03030d' }}>
+
+      {/* Canvas — full scene */}
+      <canvas ref={canvasRef} className="absolute inset-0 w-full h-full" />
+
+      {/* ── Verse overlay (top center) ─────────────────── */}
+      <motion.div
+        initial={{ opacity: 0, y: -16 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 1.2, ease: 'easeOut' }}
+        className="absolute top-4 inset-x-0 z-10 flex flex-col items-center pointer-events-none px-4"
+      >
+        <p
+          className="font-amiri text-lg md:text-2xl leading-relaxed"
+          style={{ color: 'rgba(255,240,180,0.92)', textShadow: '0 0 30px rgba(255,200,80,0.5)' }}
+        >
+          وَالشَّمْسُ{' '}
+          <span style={{ color: '#ffd85a', textShadow: '0 0 20px rgba(255,210,80,0.7)' }}>
+            تَجْرِي لِمُسْتَقَرٍّ لَّهَا
+          </span>
+        </p>
+        <p className="text-[11px] font-tajawal mt-1" style={{ color: 'rgba(255,180,60,0.55)' }}>
+          يس : 38 — The sun runs to its appointed resting place
+        </p>
       </motion.div>
-      {/* Verse */}
-      <motion.div className="absolute top-5 inset-x-0 px-6 text-center z-10"
-        initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7 }}>
-        <p className="font-amiri text-base text-amber-100">وَالشَّمْسُ <span className="text-yellow-300 font-bold">تَجْرِي لِمُسْتَقَرٍّ</span> لَّهَا</p>
-        <p className="text-amber-600/60 text-xs mt-0.5">يس 36:38 — The sun runs to its resting place</p>
-      </motion.div>
-      {/* Motion — left */}
-      <motion.div className="absolute z-10" style={{ top: '26%', left: '3%' }}
-        initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.35 }}>
-        <div className="bg-amber-950/80 backdrop-blur-sm border border-amber-700/30 rounded-xl px-3 py-2 max-w-[130px]">
-          <p className="text-amber-300 font-bold text-xs">Solar Apex</p>
-          <p className="text-stone-400 text-[10px]">19.7 km/s toward Hercules</p>
-          <p className="text-stone-400 text-[10px]">220 km/s galactic orbit</p>
-          <p className="text-stone-400 text-[10px]">225M yr per revolution</p>
-          <p className="text-yellow-400 text-[10px]">تَجْرِي = runs actively</p>
+
+      {/* ── LEFT info card: Quranic precision ─────────── */}
+      <motion.div
+        initial={{ opacity: 0, x: -20 }}
+        animate={{ opacity: 1, x: 0 }}
+        transition={{ delay: 0.6, duration: 0.9 }}
+        className="absolute z-10"
+        style={{ top: '28%', left: '3%' }}
+      >
+        <div
+          className="rounded-xl px-3 py-2.5 max-w-[140px]"
+          style={{
+            background: 'rgba(20,12,4,0.88)',
+            border: '1px solid rgba(255,180,50,0.22)',
+            backdropFilter: 'blur(8px)',
+            boxShadow: '0 0 20px rgba(255,160,30,0.08)',
+          }}
+        >
+          <p className="font-bold text-[11px] mb-1.5" style={{ color: '#ffd85a' }}>تَجْرِي — يسعى</p>
+          <div className="space-y-0.5">
+            <p className="text-[10px]" style={{ color: 'rgba(220,200,150,0.7)' }}>☀ إلى الأوج الشمسي</p>
+            <p className="text-[10px]" style={{ color: 'rgba(220,200,150,0.7)' }}>📍 كوكبة هرقل</p>
+            <p className="text-[10px]" style={{ color: 'rgba(220,200,150,0.7)' }}>⚡ 19.7 كم/ثانية</p>
+            <p className="text-[10px]" style={{ color: 'rgba(220,200,150,0.7)' }}>🔄 220 كم/ث مدارية</p>
+          </div>
+          <div className="mt-2 pt-1.5 border-t" style={{ borderColor: 'rgba(255,180,50,0.15)' }}>
+            <p className="text-[9px] font-bold" style={{ color: 'rgba(255,180,60,0.6)' }}>مُسْتَقَرٌّ = وجهة مقررة</p>
+          </div>
         </div>
       </motion.div>
-      {/* Discovery — right */}
-      <motion.div className="absolute z-10" style={{ top: '26%', right: '3%' }}
-        initial={{ opacity: 0, x: 10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.5 }}>
-        <div className="bg-orange-950/80 backdrop-blur-sm border border-orange-700/30 rounded-xl px-3 py-2 max-w-[130px]">
-          <p className="text-orange-300 font-bold text-xs">مُسْتَقَرٍّ = Destination</p>
-          <p className="text-stone-400 text-[10px]">Herschel 1783 CE</p>
-          <p className="text-stone-400 text-[10px]">Sun is NOT stationary</p>
-          <p className="text-stone-400 text-[10px]">Heading somewhere</p>
-          <p className="text-stone-500 text-[9px]">1174 yrs after Quran</p>
+
+      {/* ── RIGHT info card: Discovery ─────────────────── */}
+      <motion.div
+        initial={{ opacity: 0, x: 20 }}
+        animate={{ opacity: 1, x: 0 }}
+        transition={{ delay: 0.8, duration: 0.9 }}
+        className="absolute z-10"
+        style={{ top: '28%', right: '3%' }}
+      >
+        <div
+          className="rounded-xl px-3 py-2.5 max-w-[140px]"
+          style={{
+            background: 'rgba(14,10,4,0.88)',
+            border: '1px solid rgba(255,140,30,0.22)',
+            backdropFilter: 'blur(8px)',
+            boxShadow: '0 0 20px rgba(255,120,20,0.08)',
+          }}
+        >
+          <p className="font-bold text-[11px] mb-1.5" style={{ color: '#ffaa40' }}>هيرشل 1783 م</p>
+          <div className="space-y-0.5">
+            <p className="text-[10px]" style={{ color: 'rgba(220,190,140,0.7)' }}>🔭 اكتشاف الأوج الشمسي</p>
+            <p className="text-[10px]" style={{ color: 'rgba(220,190,140,0.7)' }}>📅 بعد القرآن بـ 1174 عاماً</p>
+            <p className="text-[10px]" style={{ color: 'rgba(220,190,140,0.7)' }}>💫 225 مليون سنة / دورة</p>
+            <p className="text-[10px]" style={{ color: 'rgba(220,190,140,0.7)' }}>🏛 كبرنيكوس ظنها ثابتة</p>
+          </div>
+          <div className="mt-2 pt-1.5 border-t" style={{ borderColor: 'rgba(255,140,30,0.15)' }}>
+            <p className="text-[9px] font-bold" style={{ color: 'rgba(255,140,30,0.6)' }}>لا أحد كان يعلم قبله</p>
+          </div>
         </div>
       </motion.div>
-      <motion.div className="absolute bottom-3 inset-x-4 z-10 text-center"
-        initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1 }}>
-        <p className="text-stone-500 text-[10px]">The sun is not stationary — it actively runs (تَجْرِي) toward the Solar Apex at 19.7 km/s</p>
+
+      {/* ── Solar Apex label (top-left quadrant) ─────── */}
+      <motion.div
+        initial={{ opacity: 0, scale: 0.8 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ delay: 1.2, duration: 0.7 }}
+        className="absolute z-10 pointer-events-none"
+        style={{ top: '14%', left: '11%' }}
+      >
+        <p
+          className="text-[10px] font-bold tracking-widest uppercase"
+          style={{ color: 'rgba(255,200,80,0.7)', textShadow: '0 0 12px rgba(255,160,30,0.5)' }}
+        >
+          ◎ Solar Apex · Hercules
+        </p>
+      </motion.div>
+
+      {/* ── Bottom caption ────────────────────────────── */}
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 1.5, duration: 1 }}
+        className="absolute bottom-4 inset-x-0 z-10 text-center pointer-events-none px-6"
+      >
+        <p className="text-[10px] font-tajawal" style={{ color: 'rgba(200,180,120,0.45)' }}>
+          الشمس تسير في مدارها الكوني بينما تتجه نحو أوجها المستقر في كوكبة هرقل
+        </p>
       </motion.div>
     </div>
   );
