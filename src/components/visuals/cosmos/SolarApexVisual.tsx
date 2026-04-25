@@ -368,113 +368,137 @@ export default function SolarApexVisual({ className }: MiracleVisualProps) {
       {/* Canvas — full scene */}
       <canvas ref={canvasRef} className="absolute inset-0 w-full h-full" />
 
-      {/* ── Verse overlay (top center) ─────────────────── */}
+      {/* ── TOP: Verse strip — slim, glassy ───────────── */}
       <motion.div
-        initial={{ opacity: 0, y: -16 }}
+        initial={{ opacity: 0, y: -12 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 1.2, ease: 'easeOut' }}
-        className="absolute top-4 inset-x-0 z-10 flex flex-col items-center pointer-events-none px-4"
+        transition={{ duration: 1.1, ease: 'easeOut' }}
+        className="absolute top-0 inset-x-0 z-10 flex flex-col items-center pointer-events-none px-4 pt-3 pb-2"
+        style={{
+          background: 'linear-gradient(to bottom, rgba(3,3,18,0.82) 0%, rgba(3,3,18,0) 100%)',
+        }}
       >
         <p
-          className="font-amiri text-lg md:text-2xl leading-relaxed"
-          style={{ color: 'rgba(255,240,180,0.92)', textShadow: '0 0 30px rgba(255,200,80,0.5)' }}
+          className="font-amiri text-xl md:text-2xl leading-snug tracking-wide"
+          style={{ color: 'rgba(255,245,195,0.95)', textShadow: '0 0 28px rgba(255,200,80,0.55)' }}
         >
           وَالشَّمْسُ{' '}
-          <span style={{ color: '#ffd85a', textShadow: '0 0 20px rgba(255,210,80,0.7)' }}>
+          <span style={{ color: '#ffd85a', textShadow: '0 0 18px rgba(255,215,80,0.75)' }}>
             تَجْرِي لِمُسْتَقَرٍّ لَّهَا
           </span>
+          {' '}ذَٰلِكَ تَقْدِيرُ الْعَزِيزِ الْعَلِيمِ
         </p>
-        <p className="text-[11px] font-tajawal mt-1" style={{ color: 'rgba(255,180,60,0.55)' }}>
-          يس : 38 — The sun runs to its appointed resting place
+        <p className="text-[10px] font-tajawal mt-0.5 tracking-widest" style={{ color: 'rgba(255,180,60,0.5)' }}>
+          سورة يس — الآية ٣٨
         </p>
       </motion.div>
 
-      {/* ── LEFT info card: Quranic precision ─────────── */}
+      {/* ── Solar Apex chip — pinned near top-left target ── */}
       <motion.div
-        initial={{ opacity: 0, x: -20 }}
-        animate={{ opacity: 1, x: 0 }}
-        transition={{ delay: 0.6, duration: 0.9 }}
-        className="absolute z-10"
-        style={{ top: '28%', left: '3%' }}
-      >
-        <div
-          className="rounded-xl px-3 py-2.5 max-w-[140px]"
-          style={{
-            background: 'rgba(20,12,4,0.88)',
-            border: '1px solid rgba(255,180,50,0.22)',
-            backdropFilter: 'blur(8px)',
-            boxShadow: '0 0 20px rgba(255,160,30,0.08)',
-          }}
-        >
-          <p className="font-bold text-[11px] mb-1.5" style={{ color: '#ffd85a' }}>تَجْرِي — يسعى</p>
-          <div className="space-y-0.5">
-            <p className="text-[10px]" style={{ color: 'rgba(220,200,150,0.7)' }}>☀ إلى الأوج الشمسي</p>
-            <p className="text-[10px]" style={{ color: 'rgba(220,200,150,0.7)' }}>📍 كوكبة هرقل</p>
-            <p className="text-[10px]" style={{ color: 'rgba(220,200,150,0.7)' }}>⚡ 19.7 كم/ثانية</p>
-            <p className="text-[10px]" style={{ color: 'rgba(220,200,150,0.7)' }}>🔄 220 كم/ث مدارية</p>
-          </div>
-          <div className="mt-2 pt-1.5 border-t" style={{ borderColor: 'rgba(255,180,50,0.15)' }}>
-            <p className="text-[9px] font-bold" style={{ color: 'rgba(255,180,60,0.6)' }}>مُسْتَقَرٌّ = وجهة مقررة</p>
-          </div>
-        </div>
-      </motion.div>
-
-      {/* ── RIGHT info card: Discovery ─────────────────── */}
-      <motion.div
-        initial={{ opacity: 0, x: 20 }}
-        animate={{ opacity: 1, x: 0 }}
-        transition={{ delay: 0.8, duration: 0.9 }}
-        className="absolute z-10"
-        style={{ top: '28%', right: '3%' }}
-      >
-        <div
-          className="rounded-xl px-3 py-2.5 max-w-[140px]"
-          style={{
-            background: 'rgba(14,10,4,0.88)',
-            border: '1px solid rgba(255,140,30,0.22)',
-            backdropFilter: 'blur(8px)',
-            boxShadow: '0 0 20px rgba(255,120,20,0.08)',
-          }}
-        >
-          <p className="font-bold text-[11px] mb-1.5" style={{ color: '#ffaa40' }}>هيرشل 1783 م</p>
-          <div className="space-y-0.5">
-            <p className="text-[10px]" style={{ color: 'rgba(220,190,140,0.7)' }}>🔭 اكتشاف الأوج الشمسي</p>
-            <p className="text-[10px]" style={{ color: 'rgba(220,190,140,0.7)' }}>📅 بعد القرآن بـ 1174 عاماً</p>
-            <p className="text-[10px]" style={{ color: 'rgba(220,190,140,0.7)' }}>💫 225 مليون سنة / دورة</p>
-            <p className="text-[10px]" style={{ color: 'rgba(220,190,140,0.7)' }}>🏛 كبرنيكوس ظنها ثابتة</p>
-          </div>
-          <div className="mt-2 pt-1.5 border-t" style={{ borderColor: 'rgba(255,140,30,0.15)' }}>
-            <p className="text-[9px] font-bold" style={{ color: 'rgba(255,140,30,0.6)' }}>لا أحد كان يعلم قبله</p>
-          </div>
-        </div>
-      </motion.div>
-
-      {/* ── Solar Apex label (top-left quadrant) ─────── */}
-      <motion.div
-        initial={{ opacity: 0, scale: 0.8 }}
+        initial={{ opacity: 0, scale: 0.85 }}
         animate={{ opacity: 1, scale: 1 }}
-        transition={{ delay: 1.2, duration: 0.7 }}
+        transition={{ delay: 1.1, duration: 0.6 }}
         className="absolute z-10 pointer-events-none"
-        style={{ top: '14%', left: '11%' }}
+        style={{ top: '20%', left: '9%' }}
       >
-        <p
-          className="text-[10px] font-bold tracking-widest uppercase"
-          style={{ color: 'rgba(255,200,80,0.7)', textShadow: '0 0 12px rgba(255,160,30,0.5)' }}
+        <div
+          className="flex items-center gap-1.5 rounded-full px-2.5 py-1"
+          style={{
+            background: 'rgba(20,14,4,0.78)',
+            border: '1px solid rgba(255,180,50,0.3)',
+            backdropFilter: 'blur(6px)',
+          }}
         >
-          ◎ Solar Apex · Hercules
-        </p>
+          <span style={{ color: '#ffd85a', fontSize: 9 }}>◎</span>
+          <span className="text-[9px] font-bold tracking-widest uppercase" style={{ color: 'rgba(255,210,80,0.85)' }}>
+            Solar Apex · Hercules
+          </span>
+        </div>
       </motion.div>
 
-      {/* ── Bottom caption ────────────────────────────── */}
+      {/* ── BOTTOM HUD: cards + caption in one row ─────── */}
       <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 1.5, duration: 1 }}
-        className="absolute bottom-4 inset-x-0 z-10 text-center pointer-events-none px-6"
+        initial={{ opacity: 0, y: 16 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.5, duration: 1 }}
+        className="absolute bottom-0 inset-x-0 z-10 pointer-events-none"
+        style={{
+          background: 'linear-gradient(to top, rgba(3,3,18,0.92) 0%, rgba(3,3,18,0.6) 70%, rgba(3,3,18,0) 100%)',
+          paddingTop: '18px',
+        }}
       >
-        <p className="text-[10px] font-tajawal" style={{ color: 'rgba(200,180,120,0.45)' }}>
-          الشمس تسير في مدارها الكوني بينما تتجه نحو أوجها المستقر في كوكبة هرقل
-        </p>
+        <div className="flex items-end gap-2 px-3 pb-3">
+
+          {/* LEFT card — Quranic precision */}
+          <div
+            className="flex-1 rounded-xl px-3 py-2"
+            style={{
+              background: 'rgba(255,180,50,0.06)',
+              border: '1px solid rgba(255,180,50,0.2)',
+              backdropFilter: 'blur(10px)',
+            }}
+          >
+            <p className="font-bold text-[11px] mb-1.5 font-amiri" style={{ color: '#ffd85a' }}>
+              تَجْرِي — يسعى
+            </p>
+            <div className="space-y-1">
+              {[
+                ['☀', 'إلى الأوج الشمسي'],
+                ['📍', 'كوكبة هرقل'],
+                ['⚡', '19.7 كم/ثانية'],
+                ['🔄', '220 كم/ث مداري'],
+              ].map(([icon, text]) => (
+                <div key={text} className="flex items-center gap-1.5">
+                  <span style={{ fontSize: 9 }}>{icon}</span>
+                  <span className="text-[10px] font-tajawal" style={{ color: 'rgba(230,210,160,0.82)' }}>{text}</span>
+                </div>
+              ))}
+            </div>
+            <div className="mt-1.5 pt-1.5 border-t" style={{ borderColor: 'rgba(255,180,50,0.15)' }}>
+              <p className="text-[9px] font-tajawal font-bold" style={{ color: 'rgba(255,200,80,0.65)' }}>مُسْتَقَرٌّ = وجهة محددة</p>
+            </div>
+          </div>
+
+          {/* CENTER caption */}
+          <div className="flex-[1.2] text-center px-1 pb-1">
+            <p className="text-[11px] font-tajawal leading-relaxed" style={{ color: 'rgba(220,200,155,0.85)' }}>
+              الشمس تسير في مدارها الكوني<br />
+              <span style={{ color: 'rgba(255,200,80,0.7)' }}>بينما تتجه نحو أوجها</span><br />
+              المستقر في كوكبة هرقل
+            </p>
+          </div>
+
+          {/* RIGHT card — Discovery */}
+          <div
+            className="flex-1 rounded-xl px-3 py-2"
+            style={{
+              background: 'rgba(255,140,30,0.06)',
+              border: '1px solid rgba(255,140,30,0.2)',
+              backdropFilter: 'blur(10px)',
+            }}
+          >
+            <p className="font-bold text-[11px] mb-1.5" style={{ color: '#ffaa40' }}>
+              هيرشل 1783 م
+            </p>
+            <div className="space-y-1">
+              {[
+                ['🔭', 'اكتشاف الأوج الشمسي'],
+                ['📅', 'بعد القرآن 1174 عاماً'],
+                ['💫', '225 مليون سنة/دورة'],
+                ['🏛', 'كبرنيكوس ظنها ثابتة'],
+              ].map(([icon, text]) => (
+                <div key={text} className="flex items-center gap-1.5">
+                  <span style={{ fontSize: 9 }}>{icon}</span>
+                  <span className="text-[10px] font-tajawal" style={{ color: 'rgba(225,200,155,0.82)' }}>{text}</span>
+                </div>
+              ))}
+            </div>
+            <div className="mt-1.5 pt-1.5 border-t" style={{ borderColor: 'rgba(255,140,30,0.15)' }}>
+              <p className="text-[9px] font-tajawal font-bold" style={{ color: 'rgba(255,150,40,0.65)' }}>لا أحد كان يعلم قبله</p>
+            </div>
+          </div>
+
+        </div>
       </motion.div>
     </div>
   );
