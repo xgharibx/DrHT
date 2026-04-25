@@ -54,7 +54,7 @@ export default function MiracleDetailPage({ params }: PageProps) {
       <section className="relative isolate h-[60vh] sm:h-[75vh] min-h-[480px] flex items-end overflow-hidden">
         {/* Miracle-specific 3D visual \u2014 unique per miracle */}
         <div aria-hidden className="absolute inset-0 z-0 pointer-events-none">
-          <div className="absolute inset-x-0 top-6 bottom-36 sm:top-8 sm:bottom-40 lg:bottom-44">
+          <div className="absolute inset-x-0 top-16 sm:top-20 bottom-36 sm:bottom-40 lg:bottom-44">
             <MiracleVisual miracleId={miracle.id} className="miracle-visual-stage w-full h-full select-none" />
           </div>
         </div>
