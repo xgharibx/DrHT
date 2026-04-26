@@ -1,11 +1,11 @@
-﻿'use client';
+'use client';
 
 import { useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 import type { MiracleVisualProps } from '../MiracleVisualRegistry';
 
-// ðŸŒ Ø£ÙŽØ¯Ù’Ù†ÙŽÙ‰ Ø§Ù„Ù’Ø£ÙŽØ±Ù’Ø¶Ù â€” Romans at the Lowest Point on Earth
-// Ar-Rum 30:2-4 â€” adna = lowest/nearest â€” Dead Sea region -430m
+// 🌍 أَدْنَى الْأَرْضِ — Romans at the Lowest Point on Earth
+// Ar-Rum 30:2-4 — adna = lowest/nearest — Dead Sea region -430m
 // Modern geodetic surveys confirmed lowest exposed land on Earth
 
 export default function RomanLowestLandVisual({ className }: MiracleVisualProps) {
@@ -33,7 +33,7 @@ export default function RomanLowestLandVisual({ className }: MiracleVisualProps)
       const seaLevelY = h * 0.42; // sea level reference line
       const metersPerPx = 0.35; // meters per pixel
 
-      // â”€â”€ Sky â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+      // ── Sky ──────────────────────────────────────────────────
       const skyGrad = ctx.createLinearGradient(0, 0, 0, seaLevelY);
       skyGrad.addColorStop(0, '#050c15');
       skyGrad.addColorStop(1, '#0a1828');
@@ -48,10 +48,10 @@ export default function RomanLowestLandVisual({ className }: MiracleVisualProps)
         ctx.fillStyle = `rgba(200,220,255,${salpha})`; ctx.fill();
       }
 
-      // â”€â”€ Terrain profile â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+      // ── Terrain profile ───────────────────────────────────────
       // Cross-section of Jordan Rift Valley (simplified)
       // Left: Judean Mountains (800m above sea level)
-      // Center: Jordan River valley â†’ Dead Sea (-430m)
+      // Center: Jordan River valley → Dead Sea (-430m)
       // Right: Transjordanian Plateau (900m)
 
       const toY = (altitudeM: number) => seaLevelY - altitudeM / metersPerPx * (h * 0.0025);
@@ -81,7 +81,7 @@ export default function RomanLowestLandVisual({ className }: MiracleVisualProps)
         i === 0 ? ctx.moveTo(xFrac * w, toY(alt)) : ctx.lineTo(xFrac * w, toY(alt));
       }); ctx.stroke();
 
-      // â”€â”€ Dead Sea fill â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+      // ── Dead Sea fill ─────────────────────────────────────────
       const deadSeaL = 0.42 * w, deadSeaR = 0.58 * w;
       const deadSeaTopY = seaLevelY;
       const deadSeaBotY = toY(-430);
@@ -104,14 +104,14 @@ export default function RomanLowestLandVisual({ className }: MiracleVisualProps)
         ctx.fillStyle = `rgba(100,180,255,${Math.sin(time * 2 + i) * 0.1 + 0.2})`; ctx.fill();
       }
 
-      // â”€â”€ Sea level reference line â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+      // ── Sea level reference line ──────────────────────────────
       ctx.strokeStyle = 'rgba(100,160,220,0.25)'; ctx.lineWidth = 0.7;
       ctx.setLineDash([4, 8]);
       ctx.beginPath(); ctx.moveTo(0, seaLevelY); ctx.lineTo(w, seaLevelY); ctx.stroke();
       ctx.setLineDash([]);
       ctx.font = `${7.5 * dpr}px monospace`; ctx.textAlign = 'left';
       ctx.fillStyle = 'rgba(100,160,220,0.3)';
-      ctx.fillText('Ù…Ø³ØªÙˆÙ‰ Ø³Ø·Ø­ Ø§Ù„Ø¨Ø­Ø± 0m', w * 0.01, seaLevelY - 4);
+      ctx.fillText('مستوى سطح البحر 0m', w * 0.01, seaLevelY - 4);
 
       // -430m arrow
       const arrowY = toY(-430);
@@ -120,17 +120,17 @@ export default function RomanLowestLandVisual({ className }: MiracleVisualProps)
       ctx.beginPath(); ctx.moveTo(w * 0.28 - 4, arrowY + 8); ctx.lineTo(w * 0.28, arrowY); ctx.lineTo(w * 0.28 + 4, arrowY + 8); ctx.stroke();
       ctx.font = `${8 * dpr}px monospace`; ctx.textAlign = 'center';
       ctx.fillStyle = 'rgba(255,200,60,0.45)';
-      ctx.fillText('âˆ’430 m', w * 0.28, arrowY - 5);
+      ctx.fillText('−430 m', w * 0.28, arrowY - 5);
 
       // Dead Sea label
       ctx.font = `bold ${8.5 * dpr}px serif`; ctx.textAlign = 'center';
       ctx.fillStyle = 'rgba(120,180,255,0.55)'; ctx.shadowColor = 'rgba(80,160,255,0.3)'; ctx.shadowBlur = 8;
-      ctx.fillText('Ø§Ù„Ø¨Ø­Ø± Ø§Ù„Ù…ÙŠØª', w * 0.5, deadSeaTopY + (deadSeaBotY - deadSeaTopY) * 0.5);
+      ctx.fillText('البحر الميت', w * 0.5, deadSeaTopY + (deadSeaBotY - deadSeaTopY) * 0.5);
       ctx.font = `${7 * dpr}px sans-serif`; ctx.shadowBlur = 0;
       ctx.fillStyle = 'rgba(100,150,220,0.35)';
-      ctx.fillText('Ø£Ø®ÙØ¶ Ù†Ù‚Ø·Ø© Ø¹Ù„Ù‰ Ø§Ù„Ø£Ø±Ø¶', w * 0.5, deadSeaTopY + (deadSeaBotY - deadSeaTopY) * 0.5 + 10 * dpr);
+      ctx.fillText('أخفض نقطة على الأرض', w * 0.5, deadSeaTopY + (deadSeaBotY - deadSeaTopY) * 0.5 + 10 * dpr);
 
-      // â”€â”€ Roman battle markers â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+      // ── Roman battle markers ──────────────────────────────────
       const battleX = w * 0.36, battleY = toY(180);
       const markerPulse = Math.sin(time * 1.8) * 0.2 + 0.7;
       // Roman eagle symbol
@@ -138,17 +138,17 @@ export default function RomanLowestLandVisual({ className }: MiracleVisualProps)
       ctx.strokeStyle = `rgba(200,80,60,${markerPulse * 0.6})`; ctx.lineWidth = 1.5; ctx.stroke();
       ctx.font = `${10 * dpr}px serif`; ctx.textAlign = 'center';
       ctx.fillStyle = `rgba(220,100,80,${markerPulse * 0.8})`;
-      ctx.fillText('âš”', battleX, battleY + 4 * dpr);
+      ctx.fillText('⚔', battleX, battleY + 4 * dpr);
 
       // Battle label
       ctx.font = `${7.5 * dpr}px sans-serif`; ctx.textAlign = 'center';
       ctx.fillStyle = 'rgba(220,120,100,0.45)';
-      ctx.fillText('Ù…Ø¹Ø±ÙƒØ© 614Ù…', battleX, battleY - 14 * dpr);
+      ctx.fillText('معركة 614م', battleX, battleY - 14 * dpr);
 
-      // Ø£Ø¯Ù†Ù‰ label
+      // أدنى label
       ctx.font = `bold ${11 * dpr}px serif`; ctx.textAlign = 'center';
       ctx.fillStyle = 'rgba(255,220,100,0.6)'; ctx.shadowColor = 'rgba(255,200,60,0.4)'; ctx.shadowBlur = 10;
-      ctx.fillText('Ø£ÙŽØ¯Ù’Ù†ÙŽÙ‰ Ø§Ù„Ù’Ø£ÙŽØ±Ù’Ø¶Ù', w * 0.5, h * 0.88);
+      ctx.fillText('أَدْنَى الْأَرْضِ', w * 0.5, h * 0.88);
       ctx.shadowBlur = 0;
 
       animId = requestAnimationFrame(draw);
@@ -177,12 +177,12 @@ export default function RomanLowestLandVisual({ className }: MiracleVisualProps)
         style={{ background: 'linear-gradient(to bottom, rgba(4,8,10,0.9) 0%, rgba(4,8,10,0) 100%)' }}>
         <p className="font-amiri text-sm md:text-base leading-snug text-center"
           style={{ color: 'rgba(220,200,160,0.92)', textShadow: '0 0 18px rgba(200,160,80,0.4)' }}>
-          ØºÙÙ„ÙØ¨ÙŽØªÙ Ø§Ù„Ø±ÙÙ‘ÙˆÙ…Ù ï´¿Ù¢ï´¾{' '}
-          <span style={{ color: '#ffdd88', textShadow: '0 0 14px rgba(255,220,100,0.7)' }}>ÙÙÙŠ Ø£ÙŽØ¯Ù’Ù†ÙŽÙ‰ Ø§Ù„Ù’Ø£ÙŽØ±Ù’Ø¶Ù</span>
-          {' '}ÙˆÙŽÙ‡ÙÙ… Ù…ÙÙ‘Ù† Ø¨ÙŽØ¹Ù’Ø¯Ù ØºÙŽÙ„ÙŽØ¨ÙÙ‡ÙÙ…Ù’ Ø³ÙŽÙŠÙŽØºÙ’Ù„ÙØ¨ÙÙˆÙ†ÙŽ ï´¿Ù£ï´¾ ÙÙÙŠ Ø¨ÙØ¶Ù’Ø¹Ù Ø³ÙÙ†ÙÙŠÙ†ÙŽ
+          غُلِبَتِ الرُّومُ ﴿٢﴾{' '}
+          <span style={{ color: '#ffdd88', textShadow: '0 0 14px rgba(255,220,100,0.7)' }}>فِي أَدْنَى الْأَرْضِ</span>
+          {' '}وَهُم مِّن بَعْدِ غَلَبِهِمْ سَيَغْلِبُونَ ﴿٣﴾ فِي بِضْعِ سِنِينَ
         </p>
         <p className="text-[9px] font-tajawal mt-0.5 tracking-[0.2em]" style={{ color: 'rgba(140,120,60,0.45)' }}>
-          Ø³ÙˆØ±Ø© Ø§Ù„Ø±ÙˆÙ… Â· Ø§Ù„Ø¢ÙŠØ§Øª Ù¢â€“Ù¤
+          سورة الروم · الآيات ٢–٤
         </p>
       </motion.div>
 
@@ -192,10 +192,10 @@ export default function RomanLowestLandVisual({ className }: MiracleVisualProps)
         style={{ background: 'linear-gradient(to top, rgba(4,8,10,0.92) 0%, rgba(4,8,10,0.5) 60%, rgba(4,8,10,0) 100%)', paddingTop: 20 }}>
         <div className="flex flex-wrap justify-center gap-1.5">
           {[
-            { icon: 'ðŸ“‰', label: 'âˆ’430 Ù…ØªØ±', sub: 'Dead Sea' },
-            { icon: 'ðŸŒ', label: 'Ø£Ø¯Ù†Ù‰ = Ø§Ù„Ø£Ø®ÙØ¶', sub: 'lowest on Earth' },
-            { icon: 'âš”ï¸', label: 'Ù…Ø¹Ø±ÙƒØ© 614Ù…', sub: 'Persia vs Rome' },
-            { icon: 'ðŸ”®', label: 'Ù†Ø¨ÙˆØ¡Ø© ØªØ­Ù‚Ù‚Øª', sub: '622â€“628Ù…' },
+            { icon: '📉', label: '−430 متر', sub: 'Dead Sea' },
+            { icon: '🌍', label: 'أدنى = الأخفض', sub: 'lowest on Earth' },
+            { icon: '⚔️', label: 'معركة 614م', sub: 'Persia vs Rome' },
+            { icon: '🔮', label: 'نبوءة تحققت', sub: '622–628م' },
           ].map(({ icon, label, sub }) => (
             <div key={label} className="flex items-center gap-1 rounded-full px-2.5 py-1"
               style={{ background: 'rgba(60,50,10,0.1)', border: '1px solid rgba(160,130,40,0.22)', backdropFilter: 'blur(8px)' }}>

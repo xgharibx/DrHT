@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
@@ -47,7 +47,7 @@ export default function WhaleJonahVisual({ className }: MiracleVisualProps) {
         ctx.strokeStyle = `rgba(100,160,220,${b.alpha})`; ctx.lineWidth = 0.5; ctx.stroke();
       });
 
-      // â”€â”€ Whale silhouette â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+      // ── Whale silhouette ──────────────────────────────────────────
       const whaleX = w * 0.5 + Math.sin(time * 0.2) * w * 0.1;
       const whaleY = h * 0.52;
       const wW = Math.min(w, h) * 0.55, wH = Math.min(w, h) * 0.16;
@@ -84,7 +84,7 @@ export default function WhaleJonahVisual({ className }: MiracleVisualProps) {
       ctx.fillStyle = innerGlow; ctx.fillRect(0, 0, w, h);
       ctx.font = `7px serif`; ctx.textAlign = 'center';
       ctx.fillStyle = `rgba(200,160,80,${glowA * 3})`;
-      ctx.fillText('ÙŠÙˆÙ†Ø³', whaleX, whaleY + 4);
+      ctx.fillText('يونس', whaleX, whaleY + 4);
 
       // Whale blow spout
       if (Math.sin(time * 0.4) > 0.95) {
@@ -95,7 +95,7 @@ export default function WhaleJonahVisual({ className }: MiracleVisualProps) {
 
       ctx.font = `bold 10px serif`; ctx.textAlign = 'center';
       ctx.fillStyle = 'rgba(60,120,180,0.4)'; ctx.shadowColor = 'rgba(40,100,160,0.2)'; ctx.shadowBlur = 8;
-      ctx.fillText('ÙÙŽØ§Ù„ØªÙŽÙ‚ÙŽÙ…ÙŽÙ‡Ù Ø§Ù„Ø­ÙÙˆØªÙ ÙˆÙŽÙ‡ÙÙˆÙŽ Ù…ÙÙ„ÙŽÙÙŠÙ…ÙŒ', w * 0.5, h * 0.93);
+      ctx.fillText('فَالتَقَمَهُ الحُوتُ وَهُوَ مُلَِيمٌ', w * 0.5, h * 0.93);
       ctx.shadowBlur = 0;
 
       animId = requestAnimationFrame(draw);
@@ -120,21 +120,21 @@ export default function WhaleJonahVisual({ className }: MiracleVisualProps) {
         style={{ background: 'linear-gradient(to bottom, rgba(0,21,48,0.9) 0%, rgba(0,21,48,0) 100%)' }}>
         <p className="font-amiri text-sm md:text-base leading-snug text-center"
           style={{ color: 'rgba(120,180,240,0.92)', textShadow: '0 0 18px rgba(60,120,200,0.4)' }}>
-          ÙÙŽØ§Ù„ØªÙŽÙ‚ÙŽÙ…ÙŽÙ‡Ù{' '}
-          <span style={{ color: '#66aaff', textShadow: '0 0 14px rgba(80,150,255,0.7)' }}>Ø§Ù„Ø­ÙÙˆØªÙ</span>
-          {' '}ÙˆÙŽÙ‡ÙÙˆÙŽ Ù…ÙÙ„ÙŽÙÙŠÙ…ÙŒ
+          فَالتَقَمَهُ{' '}
+          <span style={{ color: '#66aaff', textShadow: '0 0 14px rgba(80,150,255,0.7)' }}>الحُوتُ</span>
+          {' '}وَهُوَ مُلَِيمٌ
         </p>
-        <p className="text-[9px] font-tajawal mt-0.5 tracking-[0.2em]" style={{ color: 'rgba(30,70,120,0.45)' }}>Ø³ÙˆØ±Ø© Ø§Ù„ØµØ§ÙØ§Øª Â· Ø§Ù„Ø¢ÙŠØ© Ù¡Ù¤Ù¢</p>
+        <p className="text-[9px] font-tajawal mt-0.5 tracking-[0.2em]" style={{ color: 'rgba(30,70,120,0.45)' }}>سورة الصافات · الآية ١٤٢</p>
       </motion.div>
       <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.6, duration: 1 }}
         className="absolute bottom-0 inset-x-0 z-10 pointer-events-none flex flex-col items-center gap-1.5 pb-3 px-2"
         style={{ background: 'linear-gradient(to top, rgba(0,21,48,0.92) 0%, rgba(0,21,48,0.5) 60%, rgba(0,21,48,0) 100%)', paddingTop: 20 }}>
         <div className="flex flex-wrap justify-center gap-1.5">
           {[
-            { icon: 'ðŸ³', label: 'sperm whale', sub: 'largest predator' },
-            { icon: 'ðŸª£', label: 'ÙŠØ¨ØªÙ„Ø¹ ÙƒØ§Ù…Ù„Ø§Ù‹', sub: 'whole humans' },
-            { icon: 'ðŸ’¡', label: 'Ù†Ø¬Ø§Ø© ÙŠÙˆÙ†Ø³', sub: 'Ù…Ø¹Ø¬Ø²Ø©' },
-            { icon: 'ðŸŒŠ', label: 'deep ocean', sub: 'darkness layers' },
+            { icon: '🐳', label: 'sperm whale', sub: 'largest predator' },
+            { icon: '🪣', label: 'يبتلع كاملاً', sub: 'whole humans' },
+            { icon: '💡', label: 'نجاة يونس', sub: 'معجزة' },
+            { icon: '🌊', label: 'deep ocean', sub: 'darkness layers' },
           ].map(({ icon, label, sub }) => (
             <div key={label} className="flex items-center gap-1 rounded-full px-2.5 py-1"
               style={{ background: 'rgba(0,15,35,0.1)', border: '1px solid rgba(30,70,140,0.22)', backdropFilter: 'blur(8px)' }}>

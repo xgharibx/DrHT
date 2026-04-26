@@ -1,12 +1,12 @@
-﻿'use client';
+'use client';
 
 import { useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 import type { MiracleVisualProps } from '../MiracleVisualRegistry';
 
-// â›°ï¸ ÙˆÙŽØ§Ù„Ù’Ø¬ÙØ¨ÙŽØ§Ù„ÙŽ Ø£ÙŽÙˆÙ’ØªÙŽØ§Ø¯Ù‹Ø§ â€” Mountains as Pegs (Isostasy)
-// An-Naba 78:7 â€” mountains described as stakes/pegs
-// Isostasy: mountains have deep roots 3-4x their visible height â€” Airy 1855
+// ⛰️ وَالْجِبَالَ أَوْتَادًا — Mountains as Pegs (Isostasy)
+// An-Naba 78:7 — mountains described as stakes/pegs
+// Isostasy: mountains have deep roots 3-4x their visible height — Airy 1855
 
 export default function MountainsStabilityVisual({ className }: MiracleVisualProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -36,13 +36,13 @@ export default function MountainsStabilityVisual({ className }: MiracleVisualPro
       const surfaceY = h * 0.45; // Earth surface line
       const crustDepth = h * 0.15; // depth of crust shown
 
-      // â”€â”€ Sky â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+      // ── Sky ──────────────────────────────────────────────────
       const skyGrad = ctx.createLinearGradient(0, 0, 0, surfaceY);
       skyGrad.addColorStop(0, '#03080a');
       skyGrad.addColorStop(1, '#060f08');
       ctx.fillStyle = skyGrad; ctx.fillRect(0, 0, w, surfaceY);
 
-      // â”€â”€ Crust layer â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+      // ── Crust layer ───────────────────────────────────────────
       const crustGrad = ctx.createLinearGradient(0, surfaceY, 0, surfaceY + crustDepth);
       crustGrad.addColorStop(0, '#1a2a10');
       crustGrad.addColorStop(0.5, '#142208');
@@ -50,7 +50,7 @@ export default function MountainsStabilityVisual({ className }: MiracleVisualPro
       ctx.fillStyle = crustGrad;
       ctx.fillRect(0, surfaceY, w, crustDepth);
 
-      // â”€â”€ Mantle â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+      // ── Mantle ────────────────────────────────────────────────
       const mantleGrad = ctx.createLinearGradient(0, surfaceY + crustDepth, 0, h);
       mantleGrad.addColorStop(0, '#1a0c02');
       mantleGrad.addColorStop(0.4, '#2a1404');
@@ -58,7 +58,7 @@ export default function MountainsStabilityVisual({ className }: MiracleVisualPro
       ctx.fillStyle = mantleGrad;
       ctx.fillRect(0, surfaceY + crustDepth, w, h - surfaceY - crustDepth);
 
-      // â”€â”€ 3 Mountains with roots â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+      // ── 3 Mountains with roots ────────────────────────────────
       const mountains = [
         { xFrac: 0.22, aboveH: 0.22, rootDepth: 0.30 },
         { xFrac: 0.5, aboveH: 0.30, rootDepth: 0.38 },
@@ -123,20 +123,20 @@ export default function MountainsStabilityVisual({ className }: MiracleVisualPro
           ctx.beginPath(); ctx.moveTo(mx + mWidth + 8, surfaceY - mAbove); ctx.lineTo(mx + mWidth + 8, surfaceY); ctx.stroke();
           ctx.font = `7px monospace`; ctx.textAlign = 'left';
           ctx.fillStyle = 'rgba(180,220,140,0.4)';
-          ctx.fillText('Ø¬Ø¨Ù„\n' + Math.round(aboveH * 1000) + 'm', mx + mWidth + 10, surfaceY - mAbove * 0.5);
+          ctx.fillText('جبل\n' + Math.round(aboveH * 1000) + 'm', mx + mWidth + 10, surfaceY - mAbove * 0.5);
 
           ctx.strokeStyle = 'rgba(120,180,100,0.2)'; ctx.lineWidth = 0.6;
           ctx.beginPath(); ctx.moveTo(mx + mWidth + 8, surfaceY); ctx.lineTo(mx + mWidth + 8, surfaceY + mRoot); ctx.stroke();
           ctx.fillStyle = 'rgba(100,160,80,0.35)';
-          ctx.fillText('ÙˆÙŽØªÙŽØ¯\n' + Math.round(rootDepth * 1000) + 'm', mx + mWidth + 10, surfaceY + mRoot * 0.45);
+          ctx.fillText('وَتَد\n' + Math.round(rootDepth * 1000) + 'm', mx + mWidth + 10, surfaceY + mRoot * 0.45);
         }
       });
 
-      // â”€â”€ Surface line â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+      // ── Surface line ──────────────────────────────────────────
       ctx.strokeStyle = 'rgba(100,140,80,0.3)'; ctx.lineWidth = 1;
       ctx.beginPath(); ctx.moveTo(0, surfaceY); ctx.lineTo(w, surfaceY); ctx.stroke();
 
-      // â”€â”€ Seismic waves â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+      // ── Seismic waves ─────────────────────────────────────────
       if (Math.sin(time * 0.3) > 0.96 && seismicWaves.length < 6) {
         spawnWave(w * 0.5, surfaceY);
       }
@@ -148,10 +148,10 @@ export default function MountainsStabilityVisual({ className }: MiracleVisualPro
         ctx.beginPath(); ctx.arc(sw.x, sw.y, sw.r, 0, Math.PI * 2); ctx.stroke();
       }
 
-      // â”€â”€ Ø£ÙŽÙˆÙ’ØªÙŽØ§Ø¯ label â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+      // ── أَوْتَاد label ─────────────────────────────────────────
       ctx.font = `bold 12px serif`; ctx.textAlign = 'center';
       ctx.fillStyle = 'rgba(160,220,120,0.55)'; ctx.shadowColor = 'rgba(100,200,60,0.3)'; ctx.shadowBlur = 10;
-      ctx.fillText('ÙˆÙŽØ§Ù„Ù’Ø¬ÙØ¨ÙŽØ§Ù„ÙŽ Ø£ÙŽÙˆÙ’ØªÙŽØ§Ø¯Ù‹Ø§', w * 0.5, h * 0.87);
+      ctx.fillText('وَالْجِبَالَ أَوْتَادًا', w * 0.5, h * 0.87);
       ctx.shadowBlur = 0;
 
       animId = requestAnimationFrame(draw);
@@ -180,12 +180,12 @@ export default function MountainsStabilityVisual({ className }: MiracleVisualPro
         style={{ background: 'linear-gradient(to bottom, rgba(6,12,4,0.9) 0%, rgba(6,12,4,0) 100%)' }}>
         <p className="font-amiri text-base md:text-lg leading-snug text-center"
           style={{ color: 'rgba(180,220,160,0.92)', textShadow: '0 0 18px rgba(100,180,60,0.4)' }}>
-          Ø£ÙŽÙ„ÙŽÙ…Ù’ Ù†ÙŽØ¬Ù’Ø¹ÙŽÙ„Ù Ø§Ù„Ù’Ø£ÙŽØ±Ù’Ø¶ÙŽ Ù…ÙÙ‡ÙŽØ§Ø¯Ù‹Ø§ ï´¿Ù¦ï´¾{' '}
-          <span style={{ color: '#9fdd77', textShadow: '0 0 14px rgba(140,220,80,0.7)' }}>ÙˆÙŽØ§Ù„Ù’Ø¬ÙØ¨ÙŽØ§Ù„ÙŽ Ø£ÙŽÙˆÙ’ØªÙŽØ§Ø¯Ù‹Ø§</span>
-          {' '}ï´¿Ù§ï´¾
+          أَلَمْ نَجْعَلِ الْأَرْضَ مِهَادًا ﴿٦﴾{' '}
+          <span style={{ color: '#9fdd77', textShadow: '0 0 14px rgba(140,220,80,0.7)' }}>وَالْجِبَالَ أَوْتَادًا</span>
+          {' '}﴿٧﴾
         </p>
         <p className="text-[9px] font-tajawal mt-0.5 tracking-[0.2em]" style={{ color: 'rgba(80,120,50,0.45)' }}>
-          Ø³ÙˆØ±Ø© Ø§Ù„Ù†Ø¨Ø£ Â· Ø§Ù„Ø¢ÙŠØ§Øª Ù¦â€“Ù§
+          سورة النبأ · الآيات ٦–٧
         </p>
       </motion.div>
 
@@ -195,10 +195,10 @@ export default function MountainsStabilityVisual({ className }: MiracleVisualPro
         style={{ background: 'linear-gradient(to top, rgba(6,12,4,0.92) 0%, rgba(6,12,4,0.5) 60%, rgba(6,12,4,0) 100%)', paddingTop: 20 }}>
         <div className="flex flex-wrap justify-center gap-1.5">
           {[
-            { icon: 'â›°ï¸', label: 'Ø£ÙˆØªØ§Ø¯ = Ø¬Ø°ÙˆØ±', sub: '3-4x Ø¹Ù…Ù‚' },
-            { icon: 'ðŸ“', label: 'Isostasy', sub: 'Airy 1855' },
-            { icon: 'ðŸŒŠ', label: 'ØªØ®ÙÙŠÙ Ø§Ù„Ø²Ù„Ø§Ø²Ù„', sub: 'Ø§Ù…ØªØµØ§Øµ Ø§Ù„Ø·Ø§Ù‚Ø©' },
-            { icon: 'ðŸ”—', label: 'ØªØ«Ø¨ÙŠØª Ø§Ù„Ù‚Ø´Ø±Ø©', sub: 'stability' },
+            { icon: '⛰️', label: 'أوتاد = جذور', sub: '3-4x عمق' },
+            { icon: '📐', label: 'Isostasy', sub: 'Airy 1855' },
+            { icon: '🌊', label: 'تخفيف الزلازل', sub: 'امتصاص الطاقة' },
+            { icon: '🔗', label: 'تثبيت القشرة', sub: 'stability' },
           ].map(({ icon, label, sub }) => (
             <div key={label} className="flex items-center gap-1 rounded-full px-2.5 py-1"
               style={{ background: 'rgba(10,30,5,0.1)', border: '1px solid rgba(80,140,40,0.22)', backdropFilter: 'blur(8px)' }}>

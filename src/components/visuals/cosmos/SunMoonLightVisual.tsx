@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
@@ -61,7 +61,7 @@ export default function SunMoonLightVisual({ className }: MiracleVisualProps) {
       ctx.fillStyle = 'rgba(255,250,220,0.95)'; ctx.fill();
       ctx.font = `bold 14px serif`; ctx.textAlign = 'center';
       ctx.fillStyle = 'rgba(255,200,80,0.7)'; ctx.shadowColor = 'rgba(255,160,40,0.4)'; ctx.shadowBlur = 12;
-      ctx.fillText('Ø¶ÙÙŠÙŽØ§Ø¡Ù‹', sunX, sunY + sunR * 0.55 + 18); ctx.shadowBlur = 0;
+      ctx.fillText('ضِيَاءً', sunX, sunY + sunR * 0.55 + 18); ctx.shadowBlur = 0;
 
       const moonX = w * 0.73, moonY = h * 0.4;
       const moonR = Math.min(w, h) * 0.1;
@@ -76,7 +76,7 @@ export default function SunMoonLightVisual({ className }: MiracleVisualProps) {
       ctx.fillStyle = moonGlow2; ctx.fillRect(midX, 0, midX, h);
       ctx.font = `bold 14px serif`; ctx.textAlign = 'center';
       ctx.fillStyle = 'rgba(180,190,240,0.65)'; ctx.shadowColor = 'rgba(140,160,220,0.3)'; ctx.shadowBlur = 10;
-      ctx.fillText('Ù†ÙÙˆØ±Ù‹Ø§', moonX, moonY + moonR * 0.55 + 18); ctx.shadowBlur = 0;
+      ctx.fillText('نُورًا', moonX, moonY + moonR * 0.55 + 18); ctx.shadowBlur = 0;
 
       ctx.strokeStyle = 'rgba(140,130,200,0.12)'; ctx.lineWidth = 1; ctx.setLineDash([4, 4]);
       ctx.beginPath(); ctx.moveTo(midX, 0); ctx.lineTo(midX, h); ctx.stroke(); ctx.setLineDash([]);
@@ -103,22 +103,22 @@ export default function SunMoonLightVisual({ className }: MiracleVisualProps) {
         style={{ background: 'linear-gradient(to bottom, rgba(7,5,10,0.9) 0%, rgba(7,5,10,0) 100%)' }}>
         <p className="font-amiri text-sm md:text-base leading-snug text-center"
           style={{ color: 'rgba(220,210,255,0.92)', textShadow: '0 0 18px rgba(160,140,255,0.4)' }}>
-          Ù‡ÙÙˆÙŽ Ø§Ù„ÙŽÙ‘Ø°ÙÙŠ Ø¬ÙŽØ¹ÙŽÙ„ÙŽ Ø§Ù„Ø´ÙŽÙ‘Ù…Ù’Ø³ÙŽ{' '}
-          <span style={{ color: '#ffdd88', textShadow: '0 0 14px rgba(255,200,80,0.7)' }}>Ø¶ÙÙŠÙŽØ§Ø¡Ù‹</span>
-          {' '}ÙˆÙŽØ§Ù„Ù’Ù‚ÙŽÙ…ÙŽØ±ÙŽ{' '}
-          <span style={{ color: '#aabbff', textShadow: '0 0 14px rgba(150,180,255,0.7)' }}>Ù†ÙÙˆØ±Ù‹Ø§</span>
+          هُوَ الَّذِي جَعَلَ الشَّمْسَ{' '}
+          <span style={{ color: '#ffdd88', textShadow: '0 0 14px rgba(255,200,80,0.7)' }}>ضِيَاءً</span>
+          {' '}وَالْقَمَرَ{' '}
+          <span style={{ color: '#aabbff', textShadow: '0 0 14px rgba(150,180,255,0.7)' }}>نُورًا</span>
         </p>
-        <p className="text-[9px] font-tajawal mt-0.5 tracking-[0.2em]" style={{ color: 'rgba(60,50,100,0.45)' }}>Ø³ÙˆØ±Ø© ÙŠÙˆÙ†Ø³ Â· Ø§Ù„Ø¢ÙŠØ© Ù¥</p>
+        <p className="text-[9px] font-tajawal mt-0.5 tracking-[0.2em]" style={{ color: 'rgba(60,50,100,0.45)' }}>سورة يونس · الآية ٥</p>
       </motion.div>
       <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.6, duration: 1 }}
         className="absolute bottom-0 inset-x-0 z-10 pointer-events-none flex flex-col items-center gap-1.5 pb-3 px-2"
         style={{ background: 'linear-gradient(to top, rgba(7,5,10,0.92) 0%, rgba(7,5,10,0.5) 60%, rgba(7,5,10,0) 100%)', paddingTop: 20 }}>
         <div className="flex flex-wrap justify-center gap-1.5">
           {[
-            { icon: 'â˜€ï¸', label: 'Ø¶ÙŠØ§Ø¡ = Ù…ØµØ¯Ø±', sub: 'emitter' },
-            { icon: 'ðŸŒ•', label: 'Ù†ÙˆØ± = Ø¹Ø§ÙƒØ³', sub: 'reflector' },
-            { icon: 'ðŸ’¬', label: 'ÙØ±Ù‚ Ø¯Ù„Ø§Ù„ÙŠ', sub: '7th century' },
-            { icon: 'ðŸ”­', label: 'spectroscopy', sub: '1859 CE' },
+            { icon: '☀️', label: 'ضياء = مصدر', sub: 'emitter' },
+            { icon: '🌕', label: 'نور = عاكس', sub: 'reflector' },
+            { icon: '💬', label: 'فرق دلالي', sub: '7th century' },
+            { icon: '🔭', label: 'spectroscopy', sub: '1859 CE' },
           ].map(({ icon, label, sub }) => (
             <div key={label} className="flex items-center gap-1 rounded-full px-2.5 py-1"
               style={{ background: 'rgba(10,8,20,0.1)', border: '1px solid rgba(100,80,160,0.22)', backdropFilter: 'blur(8px)' }}>

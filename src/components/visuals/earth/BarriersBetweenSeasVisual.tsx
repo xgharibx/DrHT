@@ -1,12 +1,12 @@
-﻿'use client';
+'use client';
 
 import { useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 import type { MiracleVisualProps } from '../MiracleVisualRegistry';
 
-// ðŸŒŠ Ù…ÙŽØ±ÙŽØ¬ÙŽ Ø§Ù„Ù’Ø¨ÙŽØ­Ù’Ø±ÙŽÙŠÙ’Ù†Ù â€” Barriers Between Seas
-// Ar-Rahman 55:19-20 â€” two seas meet, a barrier between them
-// Haloclines, pycnoclines â€” Dr. Hay 1980s oceanography
+// 🌊 مَرَجَ الْبَحْرَيْنِ — Barriers Between Seas
+// Ar-Rahman 55:19-20 — two seas meet, a barrier between them
+// Haloclines, pycnoclines — Dr. Hay 1980s oceanography
 
 export default function BarriersBetweenSeasVisual({ className }: MiracleVisualProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -35,19 +35,19 @@ export default function BarriersBetweenSeasVisual({ className }: MiracleVisualPr
 
       ctx.fillStyle = '#001428'; ctx.fillRect(0, 0, w, h);
 
-      // Left sea (Atlantic â€” cool, blue, less saline)
+      // Left sea (Atlantic — cool, blue, less saline)
       const leftGrad = ctx.createLinearGradient(0, 0, barrierX, 0);
       leftGrad.addColorStop(0, 'rgba(10,40,100,0.95)');
       leftGrad.addColorStop(1, 'rgba(20,60,140,0.85)');
       ctx.fillStyle = leftGrad; ctx.fillRect(0, 0, barrierX, h);
 
-      // Right sea (Mediterranean â€” warm, green, saltier)
+      // Right sea (Mediterranean — warm, green, saltier)
       const rightGrad = ctx.createLinearGradient(barrierX, 0, w, 0);
       rightGrad.addColorStop(0, 'rgba(0,80,80,0.85)');
       rightGrad.addColorStop(1, 'rgba(0,60,60,0.95)');
       ctx.fillStyle = rightGrad; ctx.fillRect(barrierX, 0, w - barrierX, h);
 
-      // â”€â”€ Water particles â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+      // ── Water particles ─────────────────────────────────────
       pts.forEach((p) => {
         // Constrain each sea's particles
         const bound = p.sea === 0 ? [0.02, 0.48] : [0.52, 0.98];
@@ -61,7 +61,7 @@ export default function BarriersBetweenSeasVisual({ className }: MiracleVisualPr
         ctx.fillStyle = color; ctx.fill();
       });
 
-      // â”€â”€ Barrier line with halocline wave â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+      // ── Barrier line with halocline wave ──────────────────────
       ctx.strokeStyle = 'rgba(180,220,255,0.35)'; ctx.lineWidth = 2;
       ctx.beginPath();
       for (let y = h * 0.15; y < h * 0.78; y += 2) {
@@ -70,23 +70,23 @@ export default function BarriersBetweenSeasVisual({ className }: MiracleVisualPr
       }
       ctx.stroke();
 
-      // â”€â”€ Labels â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+      // ── Labels ───────────────────────────────────────────────
       ctx.font = `8px sans-serif`; ctx.textAlign = 'center';
       ctx.fillStyle = 'rgba(100,160,255,0.5)';
-      ctx.fillText('Ø¨Ø­Ø± Ø¨Ø§Ø±Ø¯ | Atlantic', barrierX * 0.5, h * 0.3);
+      ctx.fillText('بحر بارد | Atlantic', barrierX * 0.5, h * 0.3);
       ctx.fillStyle = 'rgba(60,220,200,0.5)';
-      ctx.fillText('Ø¨Ø­Ø± Ø¯Ø§ÙØ¦ | Mediterranean', barrierX + barrierX * 0.5, h * 0.3);
+      ctx.fillText('بحر دافئ | Mediterranean', barrierX + barrierX * 0.5, h * 0.3);
 
       // Salt difference arrow
       ctx.font = `7px monospace`; ctx.textAlign = 'center';
       ctx.fillStyle = 'rgba(160,220,255,0.35)';
-      ctx.fillText('Ù…Ù„ÙˆØ­ÙŠØ© 36â€°', barrierX * 0.5, h * 0.45);
-      ctx.fillText('Ù…Ù„ÙˆØ­ÙŠØ© 39â€°', barrierX + barrierX * 0.5, h * 0.45);
+      ctx.fillText('ملوحية 36‰', barrierX * 0.5, h * 0.45);
+      ctx.fillText('ملوحية 39‰', barrierX + barrierX * 0.5, h * 0.45);
 
-      // Ø¨ÙŽØ±Ù’Ø²ÙŽØ®ÙŒ label
+      // بَرْزَخٌ label
       ctx.font = `bold 11px serif`; ctx.textAlign = 'center';
       ctx.fillStyle = 'rgba(180,220,255,0.6)'; ctx.shadowColor = 'rgba(120,180,255,0.3)'; ctx.shadowBlur = 10;
-      ctx.fillText('Ø¨ÙŽÙŠÙ’Ù†ÙŽÙ‡ÙÙ…ÙŽØ§ Ø¨ÙŽØ±Ù’Ø²ÙŽØ®ÙŒ', barrierX, h * 0.88);
+      ctx.fillText('بَيْنَهُمَا بَرْزَخٌ', barrierX, h * 0.88);
       ctx.shadowBlur = 0;
 
       animId = requestAnimationFrame(draw);
@@ -115,12 +115,12 @@ export default function BarriersBetweenSeasVisual({ className }: MiracleVisualPr
         style={{ background: 'linear-gradient(to bottom, rgba(0,20,40,0.9) 0%, rgba(0,20,40,0) 100%)' }}>
         <p className="font-amiri text-sm md:text-base leading-snug text-center"
           style={{ color: 'rgba(160,210,255,0.92)', textShadow: '0 0 18px rgba(80,160,255,0.4)' }}>
-          <span style={{ color: '#88ccff', textShadow: '0 0 14px rgba(100,200,255,0.7)' }}>Ù…ÙŽØ±ÙŽØ¬ÙŽ Ø§Ù„Ù’Ø¨ÙŽØ­Ù’Ø±ÙŽÙŠÙ’Ù†Ù ÙŠÙŽÙ„Ù’ØªÙŽÙ‚ÙÙŠÙŽØ§Ù†Ù</span>
-          {' '}Ø¨ÙŽÙŠÙ’Ù†ÙŽÙ‡ÙÙ…ÙŽØ§{' '}
-          <span style={{ color: '#66ffee', textShadow: '0 0 12px rgba(80,220,200,0.6)' }}>Ø¨ÙŽØ±Ù’Ø²ÙŽØ®ÙŒ Ù„ÙŽØ§ ÙŠÙŽØ¨Ù’ØºÙÙŠÙŽØ§Ù†Ù</span>
+          <span style={{ color: '#88ccff', textShadow: '0 0 14px rgba(100,200,255,0.7)' }}>مَرَجَ الْبَحْرَيْنِ يَلْتَقِيَانِ</span>
+          {' '}بَيْنَهُمَا{' '}
+          <span style={{ color: '#66ffee', textShadow: '0 0 12px rgba(80,220,200,0.6)' }}>بَرْزَخٌ لَا يَبْغِيَانِ</span>
         </p>
         <p className="text-[9px] font-tajawal mt-0.5 tracking-[0.2em]" style={{ color: 'rgba(60,100,140,0.45)' }}>
-          Ø³ÙˆØ±Ø© Ø§Ù„Ø±Ø­Ù…Ù† Â· Ø§Ù„Ø¢ÙŠØ§Øª Ù¡Ù©â€“Ù¢Ù 
+          سورة الرحمن · الآيات ١٩–٢٠
         </p>
       </motion.div>
 
@@ -130,10 +130,10 @@ export default function BarriersBetweenSeasVisual({ className }: MiracleVisualPr
         style={{ background: 'linear-gradient(to top, rgba(0,20,40,0.92) 0%, rgba(0,20,40,0.5) 60%, rgba(0,20,40,0) 100%)', paddingTop: 20 }}>
         <div className="flex flex-wrap justify-center gap-1.5">
           {[
-            { icon: 'ðŸŒŠ', label: 'Ø¨Ø±Ø²Ø® = Ø­Ø§Ø¬Ø²', sub: 'halocline' },
-            { icon: 'ðŸ”¬', label: 'Dr. Hay 1980', sub: 'Ø«Ø¨ÙŠØª Ø³Ø¨Ø¨Ø§Ù‹' },
-            { icon: 'ðŸŸ', label: 'Ù…Ù„ÙˆØ­ÙŠØ© Ù…Ø®ØªÙ„ÙØ©', sub: 'Ù„Ø§ ØªØ®ØªÙ„Ø·' },
-            { icon: 'ðŸŒ¡ï¸', label: 'Ø¯Ø±Ø¬Ø© Ø­Ø±Ø§Ø±Ø© Ù…Ø®ØªÙ„ÙØ©', sub: 'pycnocline' },
+            { icon: '🌊', label: 'برزخ = حاجز', sub: 'halocline' },
+            { icon: '🔬', label: 'Dr. Hay 1980', sub: 'ثبيت سبباً' },
+            { icon: '🐟', label: 'ملوحية مختلفة', sub: 'لا تختلط' },
+            { icon: '🌡️', label: 'درجة حرارة مختلفة', sub: 'pycnocline' },
           ].map(({ icon, label, sub }) => (
             <div key={label} className="flex items-center gap-1 rounded-full px-2.5 py-1"
               style={{ background: 'rgba(0,20,50,0.1)', border: '1px solid rgba(40,100,160,0.22)', backdropFilter: 'blur(8px)' }}>

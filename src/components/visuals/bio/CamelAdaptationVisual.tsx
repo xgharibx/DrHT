@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
@@ -54,7 +54,7 @@ export default function CamelAdaptationVisual({ className }: MiracleVisualProps)
         ctx.stroke();
       }
 
-      // â”€â”€ Camel silhouette â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+      // ── Camel silhouette ────────────────────────────────────────────
       const camX = w * 0.42 + Math.sin(time * 0.15) * w * 0.02;
       const camY = h * 0.54;
       const sc = Math.min(w, h) * 0.0025;
@@ -92,13 +92,13 @@ export default function CamelAdaptationVisual({ className }: MiracleVisualProps)
       // Hump water label
       ctx.font = `7px sans-serif`; ctx.textAlign = 'left';
       ctx.fillStyle = `rgba(180,140,80,0.3)`;
-      ctx.fillText('Ø¯Ù‡ÙˆÙ† = Ø·Ø§Ù‚Ø©', w * 0.04, h * 0.3);
+      ctx.fillText('دهون = طاقة', w * 0.04, h * 0.3);
       ctx.fillText('not water!', w * 0.04, h * 0.36);
 
       // main label
       ctx.font = `bold 10px serif`; ctx.textAlign = 'center';
       ctx.fillStyle = 'rgba(200,160,80,0.45)'; ctx.shadowColor = 'rgba(160,120,40,0.2)'; ctx.shadowBlur = 8;
-      ctx.fillText('Ø£ÙŽÙÙŽÙ„ÙŽØ§ ÙŠÙŽÙ†Ø¸ÙØ±ÙÙˆÙ†ÙŽ Ø¥ÙÙ„ÙŽÙ‰ Ø§Ù„Ù’Ø¥ÙØ¨ÙÙ„Ù ÙƒÙŽÙŠÙ’ÙÙŽ Ø®ÙÙ„ÙÙ‚ÙŽØªÙ’', w * 0.5, h * 0.95);
+      ctx.fillText('أَفَلَا يَنظُرُونَ إِلَى الْإِبِلِ كَيْفَ خُلِقَتْ', w * 0.5, h * 0.95);
       ctx.shadowBlur = 0;
 
       animId = requestAnimationFrame(draw);
@@ -123,20 +123,20 @@ export default function CamelAdaptationVisual({ className }: MiracleVisualProps)
         style={{ background: 'linear-gradient(to bottom, rgba(13,8,0,0.9) 0%, rgba(13,8,0,0) 100%)' }}>
         <p className="font-amiri text-sm md:text-base leading-snug text-center"
           style={{ color: 'rgba(220,180,120,0.92)', textShadow: '0 0 18px rgba(160,120,60,0.4)' }}>
-          Ø£ÙŽÙÙŽÙ„ÙŽØ§ ÙŠÙŽÙ†Ø¸ÙØ±ÙÙˆÙ†ÙŽ Ø¥ÙÙ„ÙŽÙ‰{' '}
-          <span style={{ color: '#ffcc88', textShadow: '0 0 14px rgba(200,160,80,0.7)' }}>Ø§Ù„Ù’Ø¥ÙØ¨ÙÙ„Ù ÙƒÙŽÙŠÙ’ÙÙŽ Ø®ÙÙ„ÙÙ‚ÙŽØªÙ’</span>
+          أَفَلَا يَنظُرُونَ إِلَى{' '}
+          <span style={{ color: '#ffcc88', textShadow: '0 0 14px rgba(200,160,80,0.7)' }}>الْإِبِلِ كَيْفَ خُلِقَتْ</span>
         </p>
-        <p className="text-[9px] font-tajawal mt-0.5 tracking-[0.2em]" style={{ color: 'rgba(80,60,20,0.45)' }}>Ø³ÙˆØ±Ø© Ø§Ù„ØºØ§Ø´ÙŠØ© Â· Ø§Ù„Ø¢ÙŠØ© Ù¡Ù§</p>
+        <p className="text-[9px] font-tajawal mt-0.5 tracking-[0.2em]" style={{ color: 'rgba(80,60,20,0.45)' }}>سورة الغاشية · الآية ١٧</p>
       </motion.div>
       <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.6, duration: 1 }}
         className="absolute bottom-0 inset-x-0 z-10 pointer-events-none flex flex-col items-center gap-1.5 pb-3 px-2"
         style={{ background: 'linear-gradient(to top, rgba(13,8,0,0.92) 0%, rgba(13,8,0,0.5) 60%, rgba(13,8,0,0) 100%)', paddingTop: 20 }}>
         <div className="flex flex-wrap justify-center gap-1.5">
           {[
-            { icon: 'ðŸª', label: '8 ØªÙƒÙŠÙØ§Øª', sub: 'Ø¯Ù…/ÙƒÙ„Ù‰/Ø¬Ù„Ø¯' },
-            { icon: 'ðŸ‘»', label: 'Ø¯Ù‡ÙˆÙ† Ù„ÙŠØ³ Ù…Ø§Ø¡', sub: 'hump = fat store' },
-            { icon: 'ðŸŒ¡ï¸', label: '+/- 6 C', sub: 'temp tolerance' },
-            { icon: 'ðŸ’§', label: 'ÙŠØ¯Ø®Ø± 150L', sub: 'Ø¨ÙˆÙ„ Ù…Ø±ÙƒØ²' },
+            { icon: '🐪', label: '8 تكيفات', sub: 'دم/كلى/جلد' },
+            { icon: '👻', label: 'دهون ليس ماء', sub: 'hump = fat store' },
+            { icon: '🌡️', label: '+/- 6 C', sub: 'temp tolerance' },
+            { icon: '💧', label: 'يدخر 150L', sub: 'بول مركز' },
           ].map(({ icon, label, sub }) => (
             <div key={label} className="flex items-center gap-1 rounded-full px-2.5 py-1"
               style={{ background: 'rgba(20,10,0,0.1)', border: '1px solid rgba(120,80,20,0.22)', backdropFilter: 'blur(8px)' }}>

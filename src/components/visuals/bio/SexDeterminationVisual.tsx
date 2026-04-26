@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
@@ -48,7 +48,7 @@ export default function SexDeterminationVisual({ className }: MiracleVisualProps
       ctx.fillStyle = 'rgba(220,160,210,0.12)'; ctx.fill();
       ctx.font = `8px sans-serif`; ctx.textAlign = 'center';
       ctx.fillStyle = 'rgba(220,160,200,0.25)';
-      ctx.fillText('Ø¨ÙÙˆÙŠØ¶Ø© XX', cx, cy + eggR + 10);
+      ctx.fillText('بُويضة XX', cx, cy + eggR + 10);
 
       sperms.forEach((sp) => {
         sp.wag += sp.wagSpeed * 0.07;
@@ -79,7 +79,7 @@ export default function SexDeterminationVisual({ className }: MiracleVisualProps
 
       ctx.font = `bold 11px serif`; ctx.textAlign = 'center';
       ctx.fillStyle = 'rgba(200,160,255,0.5)'; ctx.shadowColor = 'rgba(160,100,255,0.3)'; ctx.shadowBlur = 10;
-      ctx.fillText('Ø®ÙŽÙ„ÙŽÙ‚ÙŽ Ø§Ù„Ø²ÙŽÙ‘ÙˆÙ’Ø¬ÙŽÙŠÙ’Ù†Ù Ù…ÙÙ† Ù†ÙØ·Ù’ÙÙŽØ©Ù Ø¥ÙØ°ÙŽØ§ ØªÙÙ…Ù’Ù†ÙŽÙ‰', w * 0.5, h * 0.91);
+      ctx.fillText('خَلَقَ الزَّوْجَيْنِ مِن نُطْفَةٍ إِذَا تُمْنَى', w * 0.5, h * 0.91);
       ctx.shadowBlur = 0;
 
       animId = requestAnimationFrame(draw);
@@ -104,20 +104,20 @@ export default function SexDeterminationVisual({ className }: MiracleVisualProps
         style={{ background: 'linear-gradient(to bottom, rgba(6,2,20,0.9) 0%, rgba(6,2,20,0) 100%)' }}>
         <p className="font-amiri text-sm md:text-base leading-snug text-center"
           style={{ color: 'rgba(210,180,255,0.92)', textShadow: '0 0 18px rgba(160,100,255,0.4)' }}>
-          Ø®ÙŽÙ„ÙŽÙ‚ÙŽ Ø§Ù„Ø²ÙŽÙ‘ÙˆÙ’Ø¬ÙŽÙŠÙ’Ù†Ù Ø§Ù„Ø°ÙŽÙ‘ÙƒÙŽØ±ÙŽ ÙˆÙŽØ§Ù„Ù’Ø£ÙÙ†Ø«ÙŽÙ‰{' '}
-          <span style={{ color: '#bbaaff', textShadow: '0 0 14px rgba(180,150,255,0.7)' }}>Ù…ÙÙ† Ù†ÙØ·Ù’ÙÙŽØ©Ù Ø¥ÙØ°ÙŽØ§ ØªÙÙ…Ù’Ù†ÙŽÙ‰</span>
+          خَلَقَ الزَّوْجَيْنِ الذَّكَرَ وَالْأُنثَى{' '}
+          <span style={{ color: '#bbaaff', textShadow: '0 0 14px rgba(180,150,255,0.7)' }}>مِن نُطْفَةٍ إِذَا تُمْنَى</span>
         </p>
-        <p className="text-[9px] font-tajawal mt-0.5 tracking-[0.2em]" style={{ color: 'rgba(60,40,100,0.45)' }}>Ø³ÙˆØ±Ø© Ø§Ù„Ù†Ø¬Ù… Â· Ø§Ù„Ø¢ÙŠØ© Ù¤Ù¥â€“Ù¤Ù¦</p>
+        <p className="text-[9px] font-tajawal mt-0.5 tracking-[0.2em]" style={{ color: 'rgba(60,40,100,0.45)' }}>سورة النجم · الآية ٤٥–٤٦</p>
       </motion.div>
       <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.6, duration: 1 }}
         className="absolute bottom-0 inset-x-0 z-10 pointer-events-none flex flex-col items-center gap-1.5 pb-3 px-2"
         style={{ background: 'linear-gradient(to top, rgba(6,2,20,0.92) 0%, rgba(6,2,20,0.5) 60%, rgba(6,2,20,0) 100%)', paddingTop: 20 }}>
         <div className="flex flex-wrap justify-center gap-1.5">
           {[
-            { icon: 'â™‚ï¸', label: 'XY = Ø°ÙƒØ±', sub: 'sperm decides' },
-            { icon: 'â™€ï¸', label: 'XX = Ø£Ù†Ø«Ù‰', sub: 'egg carries X' },
-            { icon: 'ðŸ§¬', label: 'Ù†ÙØ·Ù’ÙÙŽØ©', sub: 'Leeuwenhoek 1677' },
-            { icon: 'ðŸ”¬', label: 'McClung 1902', sub: 'sex chromosome' },
+            { icon: '♂️', label: 'XY = ذكر', sub: 'sperm decides' },
+            { icon: '♀️', label: 'XX = أنثى', sub: 'egg carries X' },
+            { icon: '🧬', label: 'نُطْفَة', sub: 'Leeuwenhoek 1677' },
+            { icon: '🔬', label: 'McClung 1902', sub: 'sex chromosome' },
           ].map(({ icon, label, sub }) => (
             <div key={label} className="flex items-center gap-1 rounded-full px-2.5 py-1"
               style={{ background: 'rgba(10,4,25,0.1)', border: '1px solid rgba(80,50,160,0.22)', backdropFilter: 'blur(8px)' }}>

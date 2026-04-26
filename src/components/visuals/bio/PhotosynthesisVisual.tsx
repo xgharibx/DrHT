@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
@@ -119,7 +119,7 @@ export default function PhotosynthesisVisual({ className }: MiracleVisualProps) 
 
       ctx.font = `bold 10px serif`; ctx.textAlign = 'center';
       ctx.fillStyle = 'rgba(80,180,80,0.4)'; ctx.shadowColor = 'rgba(40,140,40,0.2)'; ctx.shadowBlur = 8;
-      ctx.fillText('ÙÙŽØ£ÙŽØ®Ù’Ø±ÙŽØ¬Ù’Ù†ÙŽØ§ Ø¨ÙÙ‡Ù Ù†ÙŽØ¨ÙŽØ§ØªÙŽ ÙƒÙÙ„ÙÙ‘ Ø´ÙŽÙŠÙ’Ø¡Ù', w * 0.5, h * 0.95);
+      ctx.fillText('فَأَخْرَجْنَا بِهِ نَبَاتَ كُلِّ شَيْءٍ', w * 0.5, h * 0.95);
       ctx.shadowBlur = 0;
 
       animId = requestAnimationFrame(draw);
@@ -144,20 +144,20 @@ export default function PhotosynthesisVisual({ className }: MiracleVisualProps) 
         style={{ background: 'linear-gradient(to bottom, rgba(1,14,4,0.9) 0%, rgba(1,14,4,0) 100%)' }}>
         <p className="font-amiri text-sm md:text-base leading-snug text-center"
           style={{ color: 'rgba(140,220,140,0.92)', textShadow: '0 0 18px rgba(60,160,60,0.4)' }}>
-          ÙÙŽØ£ÙŽØ®Ù’Ø±ÙŽØ¬Ù’Ù†ÙŽØ§ Ø¨ÙÙ‡Ù{' '}
-          <span style={{ color: '#88ff88', textShadow: '0 0 14px rgba(80,220,80,0.7)' }}>Ù†ÙŽØ¨ÙŽØ§ØªÙŽ ÙƒÙÙ„ÙÙ‘ Ø´ÙŽÙŠÙ’Ø¡Ù</span>
+          فَأَخْرَجْنَا بِهِ{' '}
+          <span style={{ color: '#88ff88', textShadow: '0 0 14px rgba(80,220,80,0.7)' }}>نَبَاتَ كُلِّ شَيْءٍ</span>
         </p>
-        <p className="text-[9px] font-tajawal mt-0.5 tracking-[0.2em]" style={{ color: 'rgba(20,80,20,0.45)' }}>Ø³ÙˆØ±Ø© Ø§Ù„Ø£Ù†Ø¹Ø§Ù… Â· Ø§Ù„Ø¢ÙŠØ© Ù©Ù©</p>
+        <p className="text-[9px] font-tajawal mt-0.5 tracking-[0.2em]" style={{ color: 'rgba(20,80,20,0.45)' }}>سورة الأنعام · الآية ٩٩</p>
       </motion.div>
       <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.6, duration: 1 }}
         className="absolute bottom-0 inset-x-0 z-10 pointer-events-none flex flex-col items-center gap-1.5 pb-3 px-2"
         style={{ background: 'linear-gradient(to top, rgba(1,14,4,0.92) 0%, rgba(1,14,4,0.5) 60%, rgba(1,14,4,0) 100%)', paddingTop: 20 }}>
         <div className="flex flex-wrap justify-center gap-1.5">
           {[
-            { icon: 'ðŸŒž', label: 'photons', sub: 'chlorophyll absorb' },
-            { icon: 'ðŸŒ¿', label: 'C\u2086H\u2081\u2082O\u2086', sub: 'Ø³ÙƒØ± = Ø·Ø§Ù‚Ø©' },
-            { icon: 'ðŸ’¨', label: 'O\u2082 out', sub: 'byproduct' },
-            { icon: 'ðŸ§', label: '3.5B yrs', sub: 'photosynthesis' },
+            { icon: '🌞', label: 'photons', sub: 'chlorophyll absorb' },
+            { icon: '🌿', label: 'C\u2086H\u2081\u2082O\u2086', sub: 'سكر = طاقة' },
+            { icon: '💨', label: 'O\u2082 out', sub: 'byproduct' },
+            { icon: '🐧', label: '3.5B yrs', sub: 'photosynthesis' },
           ].map(({ icon, label, sub }) => (
             <div key={label} className="flex items-center gap-1 rounded-full px-2.5 py-1"
               style={{ background: 'rgba(2,12,3,0.1)', border: '1px solid rgba(30,100,30,0.22)', backdropFilter: 'blur(8px)' }}>
