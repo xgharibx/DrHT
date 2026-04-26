@@ -1,93 +1,138 @@
 ﻿'use client';
+
+import { useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
+import type { MiracleVisualProps } from '../MiracleVisualRegistry';
 
-export default function BackboneRibsSpermVisual({ className = '' }: { className?: string }) {
+export default function BackboneRibsSpermVisual({ className }: MiracleVisualProps) {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    let animId: number;
+    let time = 0;
+
+    const draw = () => {
+      time += 0.007;
+      const w = canvas.offsetWidth, h = canvas.offsetHeight;
+      const cx = w * 0.5;
+
+      ctx.fillStyle = '#04080c'; ctx.fillRect(0, 0, w, h);
+
+      // Soft glow center
+      const cGlow = ctx.createRadialGradient(cx, h * 0.45, 0, cx, h * 0.45, Math.min(w, h) * 0.4);
+      cGlow.addColorStop(0, 'rgba(60,100,140,0.06)'); cGlow.addColorStop(1, 'rgba(0,0,0,0)');
+      ctx.fillStyle = cGlow; ctx.fillRect(0, 0, w, h);
+
+      // ── Spine (vertebral column) center ─────────────────────────────
+      const spineTop = h * 0.15, spineBot = h * 0.78;
+      const vertebrae = 24;
+      const vertebraH = (spineBot - spineTop) / vertebrae;
+
+      for (let v = 0; v < vertebrae; v++) {
+        const vy = spineTop + v * vertebraH;
+        const vw = 12 + Math.sin(v * 0.5) * 4;
+        const active = Math.floor(time * 2) % vertebrae === v;
+        const alpha = active ? 0.45 : 0.2;
+        ctx.fillStyle = `rgba(100,160,200,${alpha})`;
+        ctx.fillRect(cx - vw / 2, vy + 1, vw, vertebraH - 2);
+        ctx.strokeStyle = `rgba(80,140,180,${alpha * 0.6})`; ctx.lineWidth = 0.5;
+        ctx.strokeRect(cx - vw / 2, vy + 1, vw, vertebraH - 2);
+        // Rib attachment points
+        if (v >= 3 && v <= 14) {
+          const ribLen = 18 + (v - 3) * 2.5 - Math.abs(v - 8.5) * 2;
+          const ribAlpha = active ? 0.4 : 0.15;
+          ctx.strokeStyle = `rgba(80,140,180,${ribAlpha})`; ctx.lineWidth = 1;
+          // Left rib
+          ctx.beginPath(); ctx.moveTo(cx - vw / 2, vy + vertebraH / 2);
+          ctx.quadraticCurveTo(cx - vw / 2 - ribLen * 0.5, vy + vertebraH * 0.2, cx - vw / 2 - ribLen, vy + vertebraH);
+          ctx.stroke();
+          // Right rib  
+          ctx.beginPath(); ctx.moveTo(cx + vw / 2, vy + vertebraH / 2);
+          ctx.quadraticCurveTo(cx + vw / 2 + ribLen * 0.5, vy + vertebraH * 0.2, cx + vw / 2 + ribLen, vy + vertebraH);
+          ctx.stroke();
+        }
+      }
+
+      // Labels
+      ctx.font = `7px sans-serif`; ctx.textAlign = 'right';
+      ctx.fillStyle = 'rgba(80,140,180,0.3)';
+      ctx.fillText('الصلب + الترائب', cx - 8, spineTop + (spineBot - spineTop) * 0.4);
+
+      // Sperm origin label at sacrum
+      ctx.font = `bold 8px sans-serif`; ctx.textAlign = 'center';
+      ctx.fillStyle = `rgba(100,180,220,${0.35 + Math.sin(time * 2) * 0.1})`;
+      ctx.fillText('من بَيْنِ الصُّلْبِ وَالتَّرَائِبِ', cx, spineBot + 18);
+
+      // Sperm cell showing origin from spine area
+      const spermX = cx + Math.sin(time * 1.2) * w * 0.1;
+      const spermY = spineBot - 30 + Math.cos(time * 0.8) * 10;
+      ctx.beginPath(); ctx.ellipse(spermX, spermY, 5, 4, time * 0.5, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(100,200,200,0.3)`; ctx.fill();
+      ctx.strokeStyle = 'rgba(80,180,180,0.15)'; ctx.lineWidth = 0.8;
+      for (let t = 1; t <= 4; t++) {
+        ctx.beginPath(); ctx.moveTo(spermX + Math.cos(time * 0.5) * 5, spermY);
+        ctx.lineTo(spermX + Math.cos(time * 0.5) * 5 - 14 * t / 4, spermY + Math.sin(time + t) * 3);
+        ctx.stroke();
+      }
+
+      // main label
+      ctx.font = `bold 10px serif`; ctx.textAlign = 'center';
+      ctx.fillStyle = 'rgba(100,160,200,0.45)'; ctx.shadowColor = 'rgba(60,120,180,0.2)'; ctx.shadowBlur = 8;
+      ctx.fillText('يَخْرُجُ مِن بَيْنِ الصُّلْبِ وَالتَّرَائِبِ', w * 0.5, h * 0.92);
+      ctx.shadowBlur = 0;
+
+      animId = requestAnimationFrame(draw);
+    };
+
+    let started = false;
+    const observer = new ResizeObserver(() => {
+      const dpr = window.devicePixelRatio || 1;
+      canvas.width = canvas.offsetWidth * dpr; canvas.height = canvas.offsetHeight * dpr;
+      ctx.scale(dpr, dpr);
+      if (!started) { started = true; draw(); }
+    });
+    observer.observe(canvas);
+    return () => { cancelAnimationFrame(animId); observer.disconnect(); };
+  }, []);
+
   return (
-    <div className={`relative w-full h-full overflow-hidden ${className}`}>
-      {/* Dark slate background */}
-      <div className="absolute inset-0 bg-gradient-to-b from-[#05080d] via-[#030608] to-black" />
-
-      {/* SPINE SVG — large central illustration */}
-      <motion.div
-        className="absolute bottom-0 left-1/2 -translate-x-1/2"
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 1, ease: 'easeOut' }}
-      >
-        <svg viewBox="0 0 320 290" className="w-72 h-64" fill="none">
-          {/* Pelvis base */}
-          <path d="M90 268 Q160 280 230 268 Q220 245 160 248 Q100 245 90 268Z" fill="rgba(100,80,60,0.5)" />
-          {/* Vertebral column */}
-          {[0,1,2,3,4,5,6,7,8,9,10,11,12].map(i => (
-            <g key={i} transform={`translate(${148 + (i % 2 === 0 ? 0 : 2)}, ${60 + i * 16})`}>
-              <rect x="-14" y="-6" width="28" height="14" rx="4" fill={i >= 9 ? 'rgba(80,110,170,0.7)' : 'rgba(180,160,130,0.7)'} stroke={i >= 9 ? 'rgba(100,140,220,0.5)' : 'rgba(210,190,160,0.4)'} strokeWidth="0.5" />
-              <line x1="-22" y1="0" x2="-14" y2="0" stroke={i >= 9 ? 'rgba(100,140,220,0.4)' : 'rgba(210,190,160,0.3)'} strokeWidth="3" strokeLinecap="round" />
-              <line x1="14" y1="0" x2="22" y2="0" stroke={i >= 9 ? 'rgba(100,140,220,0.4)' : 'rgba(210,190,160,0.3)'} strokeWidth="3" strokeLinecap="round" />
-            </g>
-          ))}
-          {/* L2-L3 highlight — testicular artery origin */}
-          <rect x="128" y="212" width="44" height="30" rx="5" fill="rgba(220,100,50,0.15)" stroke="rgba(220,100,50,0.5)" strokeWidth="1.5" />
-          <text x="160" y="202" textAnchor="middle" fill="rgba(220,120,60,0.9)" fontSize="8">L2–L3</text>
-          {/* Arrow to testes */}
-          <path d="M200 228 Q230 245 228 265" stroke="rgba(220,100,50,0.6)" strokeWidth="1.5" fill="none" strokeDasharray="3 2" />
-          <circle cx="228" cy="268" r="8" fill="rgba(220,100,50,0.2)" stroke="rgba(220,100,50,0.5)" strokeWidth="1" />
-        </svg>
-      </motion.div>
-
-      {/* Verse — top */}
-      <motion.div
-        className="absolute top-5 inset-x-0 px-6 text-center z-10"
-        initial={{ opacity: 0, y: -8 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.7 }}
-      >
-        <p className="font-amiri text-lg text-stone-100">
-          خُلِقَ مِن{' '}
-          <span className="text-orange-300 font-bold">مَّاءٍ دَافِقٍ</span>{' '}
-          يَخْرُجُ مِن بَيْنِ{' '}
-          <span className="text-blue-300 font-bold">الصُّلْبِ وَالتَّرَائِبِ</span>
+    <div className={`relative w-full h-full overflow-hidden ${className || ''}`} style={{ background: '#04080c' }}>
+      <canvas ref={canvasRef} className="absolute inset-0 w-full h-full" />
+      <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 1 }}
+        className="absolute top-0 inset-x-0 z-10 flex flex-col items-center pointer-events-none px-4 pt-2.5 pb-5"
+        style={{ background: 'linear-gradient(to bottom, rgba(4,8,12,0.9) 0%, rgba(4,8,12,0) 100%)' }}>
+        <p className="font-amiri text-sm md:text-base leading-snug text-center"
+          style={{ color: 'rgba(160,200,240,0.92)', textShadow: '0 0 18px rgba(80,140,200,0.4)' }}>
+          يَخْرُجُ{' '}
+          <span style={{ color: '#88ccff', textShadow: '0 0 14px rgba(100,180,255,0.7)' }}>مِن بَيْنِ الصُّلْبِ وَالتَّرَائِبِ</span>
         </p>
-        <p className="text-stone-500/60 text-xs mt-0.5">الطارق 86:6-7 — from fluid emitted between the backbone and ribs</p>
+        <p className="text-[9px] font-tajawal mt-0.5 tracking-[0.2em]" style={{ color: 'rgba(40,80,120,0.45)' }}>سورة الطارق · الآية ٧</p>
       </motion.div>
-
-      {/* Lumbar origin card — left */}
-      <motion.div
-        className="absolute z-10" style={{ top: '30%', left: '3%' }}
-        initial={{ opacity: 0, x: -10 }}
-        animate={{ opacity: 1, x: 0 }}
-        transition={{ delay: 0.35 }}
-      >
-        <div className="bg-orange-950/80 backdrop-blur-sm border border-orange-700/30 rounded-xl px-3 py-2 max-w-[148px]">
-          <p className="text-orange-300 font-bold text-xs">الصُّلْبِ Backbone</p>
-          <p className="text-stone-400 text-[10px]">Gonadal ridge forms at T12–L3</p>
-          <p className="text-stone-400 text-[10px]">Testicular artery from aorta at L2–L3</p>
-          <p className="text-stone-400 text-[10px]">Testes descend wk 7–28 from L2</p>
+      <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.6, duration: 1 }}
+        className="absolute bottom-0 inset-x-0 z-10 pointer-events-none flex flex-col items-center gap-1.5 pb-3 px-2"
+        style={{ background: 'linear-gradient(to top, rgba(4,8,12,0.92) 0%, rgba(4,8,12,0.5) 60%, rgba(4,8,12,0) 100%)', paddingTop: 20 }}>
+        <div className="flex flex-wrap justify-center gap-1.5">
+          {[
+            { icon: '🦴', label: 'صلب = vertebra', sub: 'عظم الظهر' },
+            { icon: '🧲', label: 'ترائب = ribs', sub: 'sacrum area' },
+            { icon: '🧬', label: 'sperm origin', sub: 'testes near spine' },
+            { icon: '🔬', label: 'anatomy 1543', sub: 'Vesalius' },
+          ].map(({ icon, label, sub }) => (
+            <div key={label} className="flex items-center gap-1 rounded-full px-2.5 py-1"
+              style={{ background: 'rgba(5,10,18,0.1)', border: '1px solid rgba(40,80,130,0.22)', backdropFilter: 'blur(8px)' }}>
+              <span style={{ fontSize: 10 }}>{icon}</span>
+              <div>
+                <span className="text-[10px] font-bold font-tajawal" style={{ color: 'rgba(140,190,230,0.92)' }}>{label}</span>
+                <span className="text-[8px] font-tajawal mr-1" style={{ color: 'rgba(70,120,170,0.6)' }}>{sub}</span>
+              </div>
+            </div>
+          ))}
         </div>
-      </motion.div>
-
-      {/* Ribs card — right */}
-      <motion.div
-        className="absolute z-10" style={{ top: '30%', right: '3%' }}
-        initial={{ opacity: 0, x: 10 }}
-        animate={{ opacity: 1, x: 0 }}
-        transition={{ delay: 0.5 }}
-      >
-        <div className="bg-blue-950/80 backdrop-blur-sm border border-blue-700/30 rounded-xl px-3 py-2 max-w-[148px]">
-          <p className="text-blue-300 font-bold text-xs">التَّرَائِبِ Ribs/Sternum</p>
-          <p className="text-stone-400 text-[10px]">Vas deferens passes through inguinal canal</p>
-          <p className="text-stone-400 text-[10px]">Between lumbar spine & pelvic floor</p>
-          <p className="text-stone-400 text-[10px]">= "between backbone and ribs"</p>
-        </div>
-      </motion.div>
-
-      {/* Bottom footnote */}
-      <motion.div
-        className="absolute bottom-4 inset-x-4 z-10 text-center"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 1 }}
-      >
-        <p className="text-stone-500 text-[10px]">Embryology of testicular origin confirmed by Dr. Keith Moore (anatomist) — 1,400 yrs before modern reproductive anatomy</p>
       </motion.div>
     </div>
   );

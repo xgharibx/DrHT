@@ -1,112 +1,134 @@
-'use client';
+﻿'use client';
+
+import { useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
+import type { MiracleVisualProps } from '../MiracleVisualRegistry';
 
-export default function SexDeterminationVisual({ className = '' }: { className?: string }) {
+export default function SexDeterminationVisual({ className }: MiracleVisualProps) {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    let animId: number;
+    let time = 0;
+
+    type Sperm = { x: number; y: number; angle: number; speed: number; type: 'X' | 'Y'; wag: number; wagSpeed: number };
+    const sperms: Sperm[] = Array.from({ length: 18 }, (_, i) => ({
+      x: Math.random(), y: Math.random(),
+      angle: Math.random() * Math.PI * 2,
+      speed: 0.0008 + Math.random() * 0.0006,
+      type: i < 9 ? 'X' : 'Y',
+      wag: 0, wagSpeed: 2 + Math.random() * 2,
+    }));
+
+    const draw = () => {
+      time += 0.007;
+      const w = canvas.offsetWidth, h = canvas.offsetHeight;
+      const cx = w * 0.5, cy = h * 0.42;
+
+      ctx.fillStyle = '#060214'; ctx.fillRect(0, 0, w, h);
+
+      const bgGrad = ctx.createRadialGradient(cx, cy, 0, cx, cy, Math.min(w, h) * 0.5);
+      bgGrad.addColorStop(0, 'rgba(60,20,80,0.08)'); bgGrad.addColorStop(1, 'rgba(0,0,0,0)');
+      ctx.fillStyle = bgGrad; ctx.fillRect(0, 0, w, h);
+
+      const eggR = Math.min(w, h) * 0.13;
+      const eggGrad = ctx.createRadialGradient(cx - eggR * 0.3, cy - eggR * 0.3, 0, cx, cy, eggR);
+      eggGrad.addColorStop(0, 'rgba(255,180,220,0.25)');
+      eggGrad.addColorStop(0.6, 'rgba(200,100,160,0.12)');
+      eggGrad.addColorStop(1, 'rgba(140,60,120,0.05)');
+      ctx.beginPath(); ctx.arc(cx, cy, eggR, 0, Math.PI * 2);
+      ctx.fillStyle = eggGrad; ctx.fill();
+      ctx.strokeStyle = 'rgba(220,140,200,0.15)'; ctx.lineWidth = 1; ctx.stroke();
+      ctx.beginPath(); ctx.arc(cx, cy, eggR * 0.3, 0, Math.PI * 2);
+      ctx.fillStyle = 'rgba(220,160,210,0.12)'; ctx.fill();
+      ctx.font = `8px sans-serif`; ctx.textAlign = 'center';
+      ctx.fillStyle = 'rgba(220,160,200,0.25)';
+      ctx.fillText('Ø¨ÙÙˆÙŠØ¶Ø© XX', cx, cy + eggR + 10);
+
+      sperms.forEach((sp) => {
+        sp.wag += sp.wagSpeed * 0.07;
+        const wagAngle = Math.sin(sp.wag) * 0.4;
+        sp.x += Math.cos(sp.angle + wagAngle) * sp.speed;
+        sp.y += Math.sin(sp.angle + wagAngle) * sp.speed;
+        if (sp.x < 0 || sp.x > 1) { sp.angle = Math.PI - sp.angle; sp.x = Math.max(0.01, Math.min(0.99, sp.x)); }
+        if (sp.y < 0 || sp.y > 1) { sp.angle = -sp.angle; sp.y = Math.max(0.01, Math.min(0.99, sp.y)); }
+        const sx = sp.x * w, sy = sp.y * h;
+        const isX = sp.type === 'X';
+        const color = isX ? 'rgba(160,120,255,' : 'rgba(80,200,200,';
+        const tailLen = 14;
+        ctx.strokeStyle = color + '0.25)'; ctx.lineWidth = 0.8;
+        ctx.beginPath(); ctx.moveTo(sx, sy);
+        for (let t = 1; t <= 4; t++) {
+          ctx.lineTo(
+            sx - Math.cos(sp.angle + wagAngle) * tailLen * t / 4 + Math.sin(sp.wag + t) * 3,
+            sy - Math.sin(sp.angle + wagAngle) * tailLen * t / 4
+          );
+        }
+        ctx.stroke();
+        ctx.beginPath(); ctx.ellipse(sx, sy, 4, 3, sp.angle, 0, Math.PI * 2);
+        ctx.fillStyle = color + '0.5)'; ctx.fill();
+        ctx.font = `5px bold sans-serif`; ctx.textAlign = 'center';
+        ctx.fillStyle = color + '0.8)';
+        ctx.fillText(sp.type, sx, sy - 6);
+      });
+
+      ctx.font = `bold 11px serif`; ctx.textAlign = 'center';
+      ctx.fillStyle = 'rgba(200,160,255,0.5)'; ctx.shadowColor = 'rgba(160,100,255,0.3)'; ctx.shadowBlur = 10;
+      ctx.fillText('Ø®ÙŽÙ„ÙŽÙ‚ÙŽ Ø§Ù„Ø²ÙŽÙ‘ÙˆÙ’Ø¬ÙŽÙŠÙ’Ù†Ù Ù…ÙÙ† Ù†ÙØ·Ù’ÙÙŽØ©Ù Ø¥ÙØ°ÙŽØ§ ØªÙÙ…Ù’Ù†ÙŽÙ‰', w * 0.5, h * 0.91);
+      ctx.shadowBlur = 0;
+
+      animId = requestAnimationFrame(draw);
+    };
+
+    let started = false;
+    const observer = new ResizeObserver(() => {
+      const dpr = window.devicePixelRatio || 1;
+      canvas.width = canvas.offsetWidth * dpr; canvas.height = canvas.offsetHeight * dpr;
+      ctx.scale(dpr, dpr);
+      if (!started) { started = true; draw(); }
+    });
+    observer.observe(canvas);
+    return () => { cancelAnimationFrame(animId); observer.disconnect(); };
+  }, []);
+
   return (
-    <div className={`relative w-full h-full overflow-hidden ${className}`}>
-      {/* Deep violet background */}
-      <div className="absolute inset-0 bg-gradient-to-b from-[#0a0318] via-[#060214] to-black" />
-
-      {/* Large chromosome SVG — central scene */}
-      <motion.div
-        className="absolute bottom-0 left-1/2 -translate-x-1/2"
-        initial={{ opacity: 0, scale: 0.85 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ duration: 1, ease: 'easeOut' }}
-      >
-        <svg viewBox="0 0 320 280" className="w-72 h-64" fill="none">
-          {/* X chromosome — left */}
-          <g transform="translate(80, 50)">
-            {/* X arms */}
-            <path d="M0 0 L20 40 L0 80" stroke="#a855f7" strokeWidth="12" strokeLinecap="round" />
-            <path d="M40 0 L20 40 L40 80" stroke="#a855f7" strokeWidth="12" strokeLinecap="round" />
-            <circle cx="20" cy="40" r="8" fill="#c084fc" />
-            <text x="20" y="105" textAnchor="middle" fill="#c084fc" fontSize="24" fontWeight="bold" fontFamily="serif">X</text>
-          </g>
-          {/* SPERM — large central arrow pointing to Y */}
-          <motion.g
-            animate={{ x: [0, 5, 0] }}
-            transition={{ duration: 2, repeat: Infinity }}
-          >
-            <ellipse cx="160" cy="130" rx="22" ry="10" fill="rgba(200,180,255,0.8)" />
-            <path d="M138 130 Q120 120 110 140" stroke="rgba(200,180,255,0.6)" strokeWidth="3" fill="none" strokeLinecap="round" />
-            {/* Y sperm */}
-            <path d="M160 130 L185 130" stroke="#38bdf8" strokeWidth="2" strokeDasharray="4 2" />
-            <text x="160" y="155" textAnchor="middle" fill="rgba(200,180,255,0.9)" fontSize="9">sperm only</text>
-            <text x="160" y="165" textAnchor="middle" fill="rgba(200,180,255,0.7)" fontSize="8">carries Y or X</text>
-          </motion.g>
-          {/* Y chromosome — right */}
-          <g transform="translate(200, 50)">
-            {/* Y stem */}
-            <line x1="20" y1="40" x2="20" y2="80" stroke="#38bdf8" strokeWidth="12" strokeLinecap="round" />
-            {/* Y arms */}
-            <path d="M0 0 L20 40" stroke="#38bdf8" strokeWidth="12" strokeLinecap="round" />
-            <path d="M40 0 L20 40" stroke="#38bdf8" strokeWidth="12" strokeLinecap="round" />
-            <circle cx="20" cy="40" r="8" fill="#7dd3fc" />
-            <text x="20" y="105" textAnchor="middle" fill="#7dd3fc" fontSize="24" fontWeight="bold" fontFamily="serif">Y</text>
-          </g>
-          {/* Labels beneath */}
-          <text x="100" y="200" textAnchor="middle" fill="#c084fc" fontSize="11">♀ Female</text>
-          <text x="220" y="200" textAnchor="middle" fill="#38bdf8" fontSize="11">♂ Male</text>
-          <text x="160" y="230" textAnchor="middle" fill="rgba(180,160,220,0.6)" fontSize="9">46,XX or 46,XY</text>
-        </svg>
-      </motion.div>
-
-      {/* Verse — top */}
-      <motion.div
-        className="absolute top-5 inset-x-0 px-6 text-center z-10"
-        initial={{ opacity: 0, y: -8 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.7 }}
-      >
-        <p className="font-amiri text-lg text-violet-100">
-          مِن{' '}
-          <span className="text-violet-300 font-bold">نُّطْفَةٍ</span>{' '}
-          إِذَا{' '}
-          <span className="text-sky-300 font-bold">تُمْنَى</span>
+    <div className={`relative w-full h-full overflow-hidden ${className || ''}`} style={{ background: '#060214' }}>
+      <canvas ref={canvasRef} className="absolute inset-0 w-full h-full" />
+      <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 1 }}
+        className="absolute top-0 inset-x-0 z-10 flex flex-col items-center pointer-events-none px-4 pt-2.5 pb-5"
+        style={{ background: 'linear-gradient(to bottom, rgba(6,2,20,0.9) 0%, rgba(6,2,20,0) 100%)' }}>
+        <p className="font-amiri text-sm md:text-base leading-snug text-center"
+          style={{ color: 'rgba(210,180,255,0.92)', textShadow: '0 0 18px rgba(160,100,255,0.4)' }}>
+          Ø®ÙŽÙ„ÙŽÙ‚ÙŽ Ø§Ù„Ø²ÙŽÙ‘ÙˆÙ’Ø¬ÙŽÙŠÙ’Ù†Ù Ø§Ù„Ø°ÙŽÙ‘ÙƒÙŽØ±ÙŽ ÙˆÙŽØ§Ù„Ù’Ø£ÙÙ†Ø«ÙŽÙ‰{' '}
+          <span style={{ color: '#bbaaff', textShadow: '0 0 14px rgba(180,150,255,0.7)' }}>Ù…ÙÙ† Ù†ÙØ·Ù’ÙÙŽØ©Ù Ø¥ÙØ°ÙŽØ§ ØªÙÙ…Ù’Ù†ÙŽÙ‰</span>
         </p>
-        <p className="text-slate-500/60 text-xs mt-0.5">النجم 53:46 — from a sperm drop when EMITTED</p>
+        <p className="text-[9px] font-tajawal mt-0.5 tracking-[0.2em]" style={{ color: 'rgba(60,40,100,0.45)' }}>Ø³ÙˆØ±Ø© Ø§Ù„Ù†Ø¬Ù… Â· Ø§Ù„Ø¢ÙŠØ© Ù¤Ù¥â€“Ù¤Ù¦</p>
       </motion.div>
-
-      {/* Left label — egg has no Y */}
-      <motion.div
-        className="absolute z-10" style={{ top: '28%', left: '3%' }}
-        initial={{ opacity: 0, x: -10 }}
-        animate={{ opacity: 1, x: 0 }}
-        transition={{ delay: 0.4 }}
-      >
-        <div className="bg-violet-950/80 backdrop-blur-sm border border-violet-600/30 rounded-xl px-3 py-2 max-w-[140px]">
-          <p className="text-violet-300 font-bold text-xs">Egg (Ovum)</p>
-          <p className="text-stone-400 text-[10px]">Only carries X</p>
-          <p className="text-stone-400 text-[10px]">Never determines sex</p>
+      <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.6, duration: 1 }}
+        className="absolute bottom-0 inset-x-0 z-10 pointer-events-none flex flex-col items-center gap-1.5 pb-3 px-2"
+        style={{ background: 'linear-gradient(to top, rgba(6,2,20,0.92) 0%, rgba(6,2,20,0.5) 60%, rgba(6,2,20,0) 100%)', paddingTop: 20 }}>
+        <div className="flex flex-wrap justify-center gap-1.5">
+          {[
+            { icon: 'â™‚ï¸', label: 'XY = Ø°ÙƒØ±', sub: 'sperm decides' },
+            { icon: 'â™€ï¸', label: 'XX = Ø£Ù†Ø«Ù‰', sub: 'egg carries X' },
+            { icon: 'ðŸ§¬', label: 'Ù†ÙØ·Ù’ÙÙŽØ©', sub: 'Leeuwenhoek 1677' },
+            { icon: 'ðŸ”¬', label: 'McClung 1902', sub: 'sex chromosome' },
+          ].map(({ icon, label, sub }) => (
+            <div key={label} className="flex items-center gap-1 rounded-full px-2.5 py-1"
+              style={{ background: 'rgba(10,4,25,0.1)', border: '1px solid rgba(80,50,160,0.22)', backdropFilter: 'blur(8px)' }}>
+              <span style={{ fontSize: 10 }}>{icon}</span>
+              <div>
+                <span className="text-[10px] font-bold font-tajawal" style={{ color: 'rgba(200,170,255,0.92)' }}>{label}</span>
+                <span className="text-[8px] font-tajawal mr-1" style={{ color: 'rgba(120,90,200,0.6)' }}>{sub}</span>
+              </div>
+            </div>
+          ))}
         </div>
-      </motion.div>
-
-      {/* Right label — sperm decides */}
-      <motion.div
-        className="absolute z-10" style={{ top: '28%', right: '3%' }}
-        initial={{ opacity: 0, x: 10 }}
-        animate={{ opacity: 1, x: 0 }}
-        transition={{ delay: 0.55 }}
-      >
-        <div className="bg-sky-950/80 backdrop-blur-sm border border-sky-600/30 rounded-xl px-3 py-2 max-w-[140px]">
-          <p className="text-sky-300 font-bold text-xs">Sperm</p>
-          <p className="text-stone-400 text-[10px]">X-sperm → ♀ female</p>
-          <p className="text-stone-400 text-[10px]">Y-sperm → ♂ male</p>
-          <p className="text-stone-400 text-[10px]">Quran: nutfa = SPERM</p>
-        </div>
-      </motion.div>
-
-      {/* Bottom footnote */}
-      <motion.div
-        className="absolute bottom-4 inset-x-4 z-10 text-center"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.9 }}
-      >
-        <p className="text-amber-400/80 text-xs">
-          1,400 yrs before Nettie Stevens discovered sex chromosomes (1905) — Quran attributed sex to the SPERM
-        </p>
       </motion.div>
     </div>
   );

@@ -1,78 +1,169 @@
 ﻿'use client';
-import { motion } from 'framer-motion';
 
-export default function EarthAxisSeasonsVisual({ className = '' }: { className?: string }) {
-  const seasons = [
-    { name: 'Spring', arabic: 'الربيع', pos: 'top-[24%] left-[4%]', clr: 'text-green-300', bg: 'bg-green-950/80 border-green-700/30' },
-    { name: 'Summer', arabic: 'الصيف', pos: 'top-[24%] right-[4%]', clr: 'text-yellow-300', bg: 'bg-yellow-950/80 border-yellow-700/30' },
-    { name: 'Autumn', arabic: 'الخريف', pos: 'bottom-[22%] left-[4%]', clr: 'text-amber-300', bg: 'bg-amber-950/80 border-amber-700/30' },
-    { name: 'Winter', arabic: 'الشتاء', pos: 'bottom-[22%] right-[4%]', clr: 'text-blue-300', bg: 'bg-blue-950/80 border-blue-700/30' },
-  ];
+import { useEffect, useRef } from 'react';
+import { motion } from 'framer-motion';
+import type { MiracleVisualProps } from '../MiracleVisualRegistry';
+
+// 🌍 Earth Axis Seasons
+// Quran / earth design — tilted axis causes seasons
+// 23.5° tilt produces equinoxes, solstices, 4 seasons
+
+export default function EarthAxisSeasonsVisual({ className }: MiracleVisualProps) {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    let animId: number;
+    let time = 0;
+
+    // Star background
+    const stars = Array.from({ length: 180 }, () => ({ x: Math.random(), y: Math.random(), size: Math.random() * 1.2 + 0.2, phase: Math.random() * Math.PI * 2 }));
+
+    const draw = () => {
+      time += 0.007;
+      const w = canvas.offsetWidth, h = canvas.offsetHeight;
+      const cx = w * 0.5, cy = h * 0.45;
+
+      ctx.fillStyle = '#010010'; ctx.fillRect(0, 0, w, h);
+
+      // Stars
+      stars.forEach(s => {
+        const a = Math.sin(time * 0.4 + s.phase) * 0.08 + 0.25;
+        ctx.beginPath(); ctx.arc(s.x * w, s.y * h, s.size, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(200,210,255,${a})`; ctx.fill();
+      });
+
+      // Sun
+      const sunR = Math.min(w, h) * 0.07;
+      const sunGrad = ctx.createRadialGradient(cx, cy, 0, cx, cy, sunR);
+      sunGrad.addColorStop(0, 'rgba(255,250,200,0.95)');
+      sunGrad.addColorStop(0.5, 'rgba(255,200,80,0.7)');
+      sunGrad.addColorStop(0.8, 'rgba(200,120,20,0.3)');
+      sunGrad.addColorStop(1, 'rgba(0,0,0,0)');
+      ctx.fillStyle = sunGrad; ctx.fillRect(0, 0, w, h);
+      ctx.beginPath(); ctx.arc(cx, cy, sunR * 0.45, 0, Math.PI * 2);
+      ctx.fillStyle = 'rgba(255,250,220,0.9)'; ctx.fill();
+
+      // Earth orbit ellipse
+      const orbA = Math.min(w, h) * 0.34, orbB = Math.min(w, h) * 0.22;
+      ctx.strokeStyle = 'rgba(100,150,220,0.08)'; ctx.lineWidth = 0.5;
+      ctx.beginPath(); ctx.ellipse(cx, cy, orbA, orbB, 0, 0, Math.PI * 2); ctx.stroke();
+
+      // Earth position on orbit
+      const eAngle = time * 0.18;
+      const ex = cx + Math.cos(eAngle) * orbA;
+      const ey = cy + Math.sin(eAngle) * orbB;
+
+      // Season colors
+      const seasonAngle = (eAngle % (Math.PI * 2)) / (Math.PI * 2);
+      const seasonColors = [
+        [80, 180, 80],   // spring
+        [230, 180, 20],  // summer
+        [200, 100, 20],  // autumn
+        [100, 160, 220], // winter
+      ];
+      const si = Math.floor(seasonAngle * 4) % 4;
+      const [sr, sg, sb] = seasonColors[si];
+      const seasonNames = ['الربيع ⛰️', 'الصيف ☀️', 'الخريف 🍂', 'الشتاء ❄️'];
+
+      // Sun ray to Earth
+      ctx.strokeStyle = `rgba(${sr},${sg},${sb},0.12)`; ctx.lineWidth = 1;
+      ctx.beginPath(); ctx.moveTo(cx, cy); ctx.lineTo(ex, ey); ctx.stroke();
+
+      // Earth itself
+      const eR = Math.min(w, h) * 0.055;
+      const earthGrad = ctx.createRadialGradient(ex - eR * 0.3, ey - eR * 0.3, 0, ex, ey, eR);
+      earthGrad.addColorStop(0, `rgba(${sr},${sg},${sb * 2},0.9)`);
+      earthGrad.addColorStop(0.5, `rgba(${sr * 0.4},${sg * 0.5},${sb},0.8)`);
+      earthGrad.addColorStop(1, `rgba(${sr * 0.2},${sg * 0.25},${sb * 0.5},0.5)`);
+      ctx.beginPath(); ctx.arc(ex, ey, eR, 0, Math.PI * 2);
+      ctx.fillStyle = earthGrad; ctx.fill();
+
+      // Axial tilt line (23.5°)
+      const tiltAngle = -Math.PI / 2 + 0.41; // 23.5° from vertical
+      ctx.strokeStyle = 'rgba(200,200,255,0.4)'; ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(ex + Math.cos(tiltAngle) * eR * 1.6, ey + Math.sin(tiltAngle) * eR * 1.6);
+      ctx.lineTo(ex - Math.cos(tiltAngle) * eR * 1.6, ey - Math.sin(tiltAngle) * eR * 1.6);
+      ctx.stroke();
+
+      // 23.5° label near Earth
+      ctx.font = `6px sans-serif`; ctx.textAlign = 'center';
+      ctx.fillStyle = 'rgba(180,180,255,0.4)';
+      ctx.fillText('23.5°', ex + eR * 1.8, ey - eR * 0.5);
+
+      // Current season label
+      ctx.font = `bold 9px sans-serif`; ctx.textAlign = 'center';
+      ctx.fillStyle = `rgba(${sr},${sg},${sb},0.7)`;
+      ctx.fillText(seasonNames[si], ex, ey + eR + 14);
+
+      // 4 season position dots
+      for (let i = 0; i < 4; i++) {
+        const a = (i / 4) * Math.PI * 2;
+        const dx = cx + Math.cos(a) * orbA, dy = cy + Math.sin(a) * orbB;
+        ctx.beginPath(); ctx.arc(dx, dy, 3, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(${seasonColors[i][0]},${seasonColors[i][1]},${seasonColors[i][2]},0.4)`; ctx.fill();
+      }
+
+      animId = requestAnimationFrame(draw);
+    };
+
+    let started = false;
+    const observer = new ResizeObserver(() => {
+      const dpr = window.devicePixelRatio || 1;
+      canvas.width = canvas.offsetWidth * dpr;
+      canvas.height = canvas.offsetHeight * dpr;
+      ctx.scale(dpr, dpr);
+      if (!started) { started = true; draw(); }
+    });
+    observer.observe(canvas);
+    return () => { cancelAnimationFrame(animId); observer.disconnect(); };
+  }, []);
+
   return (
-    <div className={`relative w-full h-full overflow-hidden ${className}`}>
-      <div className="absolute inset-0 bg-gradient-to-b from-[#00050a] via-[#000408] to-black" />
-      {/* Stars */}
-      {[...Array(30)].map((_, i) => (
-        <div key={i} className="absolute w-px h-px rounded-full bg-white/40"
-          style={{ top: Math.random()*60+'%', left: Math.random()*100+'%' }} />
-      ))}
-      {/* Earth — large tilted SVG */}
-      <motion.div
-        className="absolute left-1/2 top-[52%] -translate-x-1/2 -translate-y-1/2"
-        animate={{ rotate: [0, 1, 0, -1, 0] }}
-        transition={{ duration: 8, repeat: Infinity }}
-      >
-        <svg viewBox="0 0 200 200" className="w-44 h-44" fill="none">
-          {/* Tilt axis line */}
-          <line x1="115" y1="5" x2="85" y2="195" stroke="rgba(100,140,200,0.5)" strokeWidth="1.5" strokeDasharray="4 3" />
-          {/* Earth globe */}
-          <circle cx="100" cy="100" r="75" fill="rgba(20,50,120,0.7)" stroke="rgba(60,120,200,0.3)" strokeWidth="1" />
-          {/* Ocean gradient */}
-          <circle cx="100" cy="100" r="75" fill="url(#earthGrad)" />
-          <defs>
-            <radialGradient id="earthGrad" cx="40%" cy="35%">
-              <stop offset="0%" stopColor="rgba(40,120,200,0.6)" />
-              <stop offset="100%" stopColor="rgba(10,40,100,0.4)" />
-            </radialGradient>
-          </defs>
-          {/* Continent blobs */}
-          <path d="M75 50 Q90 40 110 55 Q125 75 115 90 Q100 100 85 88 Q70 72 75 50Z" fill="rgba(40,120,40,0.7)" />
-          <path d="M50 100 Q65 90 75 105 Q70 125 55 120 Q45 112 50 100Z" fill="rgba(40,120,40,0.6)" />
-          <path d="M110 110 Q130 100 145 120 Q140 145 120 140 Q105 130 110 110Z" fill="rgba(40,120,40,0.65)" />
-          {/* Ice caps */}
-          <ellipse cx="100" cy="32" rx="28" ry="12" fill="rgba(220,235,255,0.6)" />
-          <ellipse cx="100" cy="168" rx="22" ry="10" fill="rgba(220,235,255,0.5)" />
-          {/* Equator */}
-          <line x1="26" y1="100" x2="174" y2="100" stroke="rgba(200,200,200,0.2)" strokeWidth="1" strokeDasharray="3 3" />
-          {/* Tilt angle label */}
-          <text x="118" y="20" fill="rgba(150,180,255,0.8)" fontSize="9">23.5°</text>
-        </svg>
+    <div className={`relative w-full h-full overflow-hidden ${className || ''}`}
+      style={{ background: '#010010' }}>
+      <canvas ref={canvasRef} className="absolute inset-0 w-full h-full" />
+
+      <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 1 }}
+        className="absolute top-0 inset-x-0 z-10 flex flex-col items-center pointer-events-none px-4 pt-2.5 pb-5"
+        style={{ background: 'linear-gradient(to bottom, rgba(1,0,16,0.9) 0%, rgba(1,0,16,0) 100%)' }}>
+        <p className="font-amiri text-sm md:text-base leading-snug text-center"
+          style={{ color: 'rgba(180,200,255,0.92)', textShadow: '0 0 18px rgba(80,120,220,0.4)' }}>
+          يُكَوِّرُ اللَّيْلَ عَلَى النَّهَارِ{' '}
+          <span style={{ color: '#88ccff', textShadow: '0 0 14px rgba(100,180,255,0.7)' }}>وَسَخَّرَ الشَّمْسَ وَالْقَمَرَ</span>
+        </p>
+        <p className="text-[9px] font-tajawal mt-0.5 tracking-[0.2em]" style={{ color: 'rgba(40,60,120,0.45)' }}>
+          سورة الزمر · الآية ٥
+        </p>
       </motion.div>
-      {/* Verse — top */}
-      <motion.div
-        className="absolute top-5 inset-x-0 px-6 text-center z-10"
-        initial={{ opacity: 0, y: -8 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.7 }}
-      >
-        <p className="font-amiri text-lg text-sky-100">وَاخْتِلَافِ{' '}<span className="text-sky-300 font-bold">اللَّيْلِ وَالنَّهَارِ</span>{' '}لَآيَاتٍ</p>
-        <p className="text-sky-500/60 text-xs mt-0.5">البقرة 2:164 — In the alternation of night and day are signs</p>
-      </motion.div>
-      {/* Season cards */}
-      {seasons.map((s, i) => (
-        <motion.div key={s.name} className={`absolute z-10 ${s.pos}`}
-          initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.3 + i * 0.15 }}
-        >
-          <div className={`${s.bg} backdrop-blur-sm border rounded-xl px-3 py-1.5`}>
-            <p className={`font-amiri text-sm font-bold ${s.clr}`}>{s.arabic}</p>
-            <p className="text-stone-400 text-[10px]">{s.name}</p>
-          </div>
-        </motion.div>
-      ))}
-      <motion.div className="absolute bottom-4 inset-x-4 z-10 text-center"
-        initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1 }}
-      >
-        <p className="text-stone-500 text-[10px]">Earth axis tilt 23.5° creates seasons — without it, no seasons, no temperature regulation, no complex life</p>
+
+      <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.6, duration: 1 }}
+        className="absolute bottom-0 inset-x-0 z-10 pointer-events-none flex flex-col items-center gap-1.5 pb-3 px-2"
+        style={{ background: 'linear-gradient(to top, rgba(1,0,16,0.92) 0%, rgba(1,0,16,0.5) 60%, rgba(1,0,16,0) 100%)', paddingTop: 20 }}>
+        <div className="flex flex-wrap justify-center gap-1.5">
+          {[
+            { icon: '🌍', label: '23.5° ميل', sub: 'تخلق فصولاً' },
+            { icon: '☔', label: 'الانقلابين', sub: 'solstices' },
+            { icon: '🌃', label: '4 فصول', sub: 'تنوع بيئي' },
+            { icon: '📐', label: 'تصميم دقيق', sub: 'precision' },
+          ].map(({ icon, label, sub }) => (
+            <div key={label} className="flex items-center gap-1 rounded-full px-2.5 py-1"
+              style={{ background: 'rgba(4,2,25,0.1)', border: '1px solid rgba(40,80,180,0.22)', backdropFilter: 'blur(8px)' }}>
+              <span style={{ fontSize: 10 }}>{icon}</span>
+              <div>
+                <span className="text-[10px] font-bold font-tajawal" style={{ color: 'rgba(160,190,255,0.92)' }}>{label}</span>
+                <span className="text-[8px] font-tajawal mr-1" style={{ color: 'rgba(80,110,200,0.6)' }}>{sub}</span>
+              </div>
+            </div>
+          ))}
+        </div>
       </motion.div>
     </div>
   );

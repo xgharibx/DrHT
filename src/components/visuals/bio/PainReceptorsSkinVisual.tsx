@@ -1,68 +1,167 @@
 ﻿'use client';
-import { motion } from 'framer-motion';
 
-export default function PainReceptorsSkinVisual({ className = '' }: { className?: string }) {
+import { useEffect, useRef } from 'react';
+import { motion } from 'framer-motion';
+import type { MiracleVisualProps } from '../MiracleVisualRegistry';
+
+// 🦶 كُلَّمَا نَضِجَتْ جُلُودُهُمْ — Pain Receptors in Skin
+// An-Nisa 4:56 — fire replaced with new skins to taste punishment
+// Nociceptors discovered 1906; pain requires functional skin nerve endings
+
+export default function PainReceptorsSkinVisual({ className }: MiracleVisualProps) {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    let animId: number;
+    let time = 0;
+
+    // Skin layers
+    // Nociceptor dendrites
+    type Nociceptor = { x: number; y: number; branches: [number, number][] };
+    const nociceptors: Nociceptor[] = Array.from({ length: 6 }, (_, i) => ({
+      x: 0.12 + i * 0.15,
+      y: 0.48,
+      branches: [
+        [0, -0.08], [-0.03, -0.12], [0.03, -0.12],
+        [-0.05, -0.06], [0.05, -0.06],
+      ],
+    }));
+
+    // Pain signals — traveling up nerve fiber
+    type PainSignal = { x: number; y: number; progress: number; branch: number };
+    const painSignals: PainSignal[] = [];
+
+    const draw = () => {
+      time += 0.007;
+      const w = canvas.offsetWidth, h = canvas.offsetHeight;
+
+      ctx.fillStyle = '#0f0403'; ctx.fillRect(0, 0, w, h);
+
+      // ── Skin layers ─────────────────────────────────────────
+      // Epidermis
+      const epiGrad = ctx.createLinearGradient(0, h * 0.32, 0, h * 0.48);
+      epiGrad.addColorStop(0, 'rgba(200,140,100,0.6)');
+      epiGrad.addColorStop(1, 'rgba(160,100,70,0.5)');
+      ctx.fillStyle = epiGrad; ctx.fillRect(0, h * 0.32, w, h * 0.16);
+      ctx.strokeStyle = 'rgba(180,120,80,0.2)'; ctx.lineWidth = 0.5;
+      ctx.beginPath(); ctx.moveTo(0, h * 0.32); ctx.lineTo(w, h * 0.32); ctx.stroke();
+      ctx.fillStyle = 'rgba(180,120,80,0.25)'; ctx.font = `7px sans-serif`; ctx.textAlign = 'right';
+      ctx.fillText('بشرة — epidermis', w * 0.96, h * 0.37);
+
+      // Dermis
+      const derGrad = ctx.createLinearGradient(0, h * 0.48, 0, h * 0.72);
+      derGrad.addColorStop(0, 'rgba(140,80,60,0.6)');
+      derGrad.addColorStop(1, 'rgba(100,50,40,0.5)');
+      ctx.fillStyle = derGrad; ctx.fillRect(0, h * 0.48, w, h * 0.24);
+      ctx.strokeStyle = 'rgba(160,80,50,0.2)'; ctx.lineWidth = 0.5;
+      ctx.beginPath(); ctx.moveTo(0, h * 0.48); ctx.lineTo(w, h * 0.48); ctx.stroke();
+      ctx.fillStyle = 'rgba(160,80,50,0.2)'; ctx.font = `7px sans-serif`; ctx.textAlign = 'right';
+      ctx.fillText('أدمة — dermis', w * 0.96, h * 0.57);
+
+      // Subcutaneous
+      ctx.fillStyle = 'rgba(80,50,30,0.5)'; ctx.fillRect(0, h * 0.72, w, h * 0.28);
+
+      // ── Nociceptors ────────────────────────────────────────
+      nociceptors.forEach((nc, ni) => {
+        const active = Math.sin(time * 1.5 + ni * 1.1) > 0.3;
+        const ncAlpha = active ? 0.8 : 0.3;
+        // Main fiber (vertical downward)
+        ctx.strokeStyle = `rgba(255,140,60,${ncAlpha})`; ctx.lineWidth = 1.5;
+        ctx.beginPath(); ctx.moveTo(nc.x * w, nc.y * h); ctx.lineTo(nc.x * w, h * 0.78); ctx.stroke();
+        // Dendrite branches
+        nc.branches.forEach(([bx, by]) => {
+          ctx.strokeStyle = `rgba(255,160,80,${ncAlpha * 0.7})`; ctx.lineWidth = 0.8;
+          ctx.beginPath(); ctx.moveTo(nc.x * w, nc.y * h);
+          ctx.lineTo((nc.x + bx) * w, (nc.y + by) * h); ctx.stroke();
+        });
+        // Nociceptor dot
+        ctx.beginPath(); ctx.arc(nc.x * w, nc.y * h, 3.5, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(255,120,40,${ncAlpha})`; ctx.fill();
+        if (active && Math.random() < 0.05) {
+          painSignals.push({ x: nc.x * w, y: nc.y * h, progress: 0, branch: ni });
+        }
+      });
+
+      // ── Pain signals traveling up nerve ─────────────────────
+      for (let i = painSignals.length - 1; i >= 0; i--) {
+        const ps = painSignals[i];
+        ps.progress += 0.04;
+        const py = ps.y + ps.progress * (h * 0.78 - ps.y);
+        ctx.beginPath(); ctx.arc(ps.x, py, 4, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(255,80,20,${(1 - ps.progress) * 0.7})`; ctx.fill();
+        if (ps.progress >= 1) painSignals.splice(i, 1);
+      }
+
+      // Nerve bundle at bottom
+      ctx.strokeStyle = 'rgba(255,120,40,0.25)'; ctx.lineWidth = 3;
+      ctx.beginPath(); ctx.moveTo(w * 0.3, h * 0.78); ctx.lineTo(w * 0.7, h * 0.78); ctx.stroke();
+
+      // نَضِجَتْ label
+      ctx.font = `bold 11px serif`; ctx.textAlign = 'center';
+      ctx.fillStyle = 'rgba(255,160,80,0.55)'; ctx.shadowColor = 'rgba(255,120,40,0.3)'; ctx.shadowBlur = 10;
+      ctx.fillText('كُلَّمَا نَضِجَتْ جُلُودُهُمْ', w * 0.5, h * 0.12);
+      ctx.shadowBlur = 0;
+
+      animId = requestAnimationFrame(draw);
+    };
+
+    let started = false;
+    const observer = new ResizeObserver(() => {
+      const dpr = window.devicePixelRatio || 1;
+      canvas.width = canvas.offsetWidth * dpr;
+      canvas.height = canvas.offsetHeight * dpr;
+      ctx.scale(dpr, dpr);
+      if (!started) { started = true; draw(); }
+    });
+    observer.observe(canvas);
+    return () => { cancelAnimationFrame(animId); observer.disconnect(); };
+  }, []);
+
   return (
-    <div className={`relative w-full h-full overflow-hidden ${className}`}>
-      <div className="absolute inset-0 bg-gradient-to-b from-[#1a0800] via-[#0f0400] to-black" />
-      {/* Skin layers SVG */}
-      <motion.div className="absolute bottom-0 left-1/2 -translate-x-1/2"
-        initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 1 }}>
-        <svg viewBox="0 0 320 220" className="w-80 h-52" fill="none">
-          {/* Epidermis */}
-          <rect x="10" y="20" width="300" height="40" rx="4" fill="rgba(220,160,100,0.3)" stroke="rgba(220,160,100,0.4)" strokeWidth="0.5" />
-          <text x="25" y="44" fill="rgba(255,200,130,0.8)" fontSize="10">البشرة Epidermis</text>
-          {/* Pain receptors — dots in epidermis */}
-          {[0,1,2,3,4,5,6,7].map(i => (
-            <circle key={`e${i}`} cx={40+i*35} cy={35} r="3" fill="rgba(255,80,50,0.6)" />
+    <div className={`relative w-full h-full overflow-hidden ${className || ''}`}
+      style={{ background: '#0f0403' }}>
+      <canvas ref={canvasRef} className="absolute inset-0 w-full h-full" />
+
+      <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 1 }}
+        className="absolute top-0 inset-x-0 z-10 flex flex-col items-center pointer-events-none px-4 pt-2.5 pb-5"
+        style={{ background: 'linear-gradient(to bottom, rgba(15,4,3,0.9) 0%, rgba(15,4,3,0) 100%)' }}>
+        <p className="font-amiri text-sm md:text-base leading-snug text-center"
+          style={{ color: 'rgba(250,200,160,0.92)', textShadow: '0 0 18px rgba(200,120,60,0.4)' }}>
+          <span style={{ color: '#ff9955', textShadow: '0 0 14px rgba(255,150,80,0.7)' }}>كُلَّمَا نَضِجَتْ جُلُودُهُمْ</span>
+          {' '}بَدَّلْنَاهُمْ جُلُودًا غَيْرَهَا
+        </p>
+        <p className="text-[9px] font-tajawal mt-0.5 tracking-[0.2em]" style={{ color: 'rgba(140,70,40,0.45)' }}>
+          سورة النساء · الآية ٥٦
+        </p>
+      </motion.div>
+
+      <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.6, duration: 1 }}
+        className="absolute bottom-0 inset-x-0 z-10 pointer-events-none flex flex-col items-center gap-1.5 pb-3 px-2"
+        style={{ background: 'linear-gradient(to top, rgba(15,4,3,0.92) 0%, rgba(15,4,3,0.5) 60%, rgba(15,4,3,0) 100%)', paddingTop: 20 }}>
+        <div className="flex flex-wrap justify-center gap-1.5">
+          {[
+            { icon: '🦶', label: 'nociceptors', sub: 'Sherrington 1906' },
+            { icon: '⚡', label: 'ألم = جلد', sub: 'ليس عظم' },
+            { icon: '🔥', label: 'تجديد = إحساس', sub: 'regenerate pain' },
+            { icon: '🔬', label: 'TRPV1', sub: 'حرارة = ألم' },
+          ].map(({ icon, label, sub }) => (
+            <div key={label} className="flex items-center gap-1 rounded-full px-2.5 py-1"
+              style={{ background: 'rgba(30,8,4,0.1)', border: '1px solid rgba(180,80,40,0.22)', backdropFilter: 'blur(8px)' }}>
+              <span style={{ fontSize: 10 }}>{icon}</span>
+              <div>
+                <span className="text-[10px] font-bold font-tajawal" style={{ color: 'rgba(255,180,120,0.92)' }}>{label}</span>
+                <span className="text-[8px] font-tajawal mr-1" style={{ color: 'rgba(180,100,60,0.6)' }}>{sub}</span>
+              </div>
+            </div>
           ))}
-          {/* Dermis */}
-          <rect x="10" y="65" width="300" height="60" rx="4" fill="rgba(180,100,80,0.25)" stroke="rgba(180,100,80,0.3)" strokeWidth="0.5" />
-          <text x="25" y="100" fill="rgba(220,150,120,0.7)" fontSize="10">الأدمة Dermis</text>
-          {/* Nerve fibers in dermis */}
-          {[0,1,2,3].map(i => (
-            <path key={`d${i}`} d={`M${50+i*70} 70 Q${55+i*70} 90 ${60+i*70} 110`} stroke="rgba(255,100,70,0.3)" strokeWidth="1" fill="none" />
-          ))}
-          {/* Subcutis */}
-          <rect x="10" y="130" width="300" height="50" rx="4" fill="rgba(140,80,60,0.15)" stroke="rgba(140,80,60,0.2)" strokeWidth="0.5" />
-          <text x="25" y="160" fill="rgba(180,120,100,0.5)" fontSize="10">تحت الجلد Subcutis</text>
-          {/* Burn damage indicator */}
-          <motion.rect x="180" y="15" width="80" height="170" rx="4" fill="rgba(255,50,0,0.08)" stroke="rgba(255,80,30,0.3)" strokeWidth="1" strokeDasharray="4,3"
-            animate={{ opacity: [0.3, 0.6, 0.3] }} transition={{ duration: 2, repeat: Infinity }} />
-          <text x="195" y="200" fill="rgba(255,100,50,0.6)" fontSize="9">3rd° burn = NO pain</text>
-        </svg>
-      </motion.div>
-      {/* Verse */}
-      <motion.div className="absolute top-5 inset-x-0 px-5 text-center z-10"
-        initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7 }}>
-        <p className="font-amiri text-sm text-orange-100">كُلَّمَا نَضِجَتْ جُلُودُهُمْ <span className="text-red-400 font-bold">بَدَّلْنَاهُمْ جُلُودًا غَيْرَهَا</span> لِيَذُوقُوا الْعَذَابَ</p>
-        <p className="text-orange-600/60 text-xs mt-0.5">النساء 4:56 — Skins replaced so they taste punishment</p>
-      </motion.div>
-      {/* Receptors — left */}
-      <motion.div className="absolute z-10" style={{ top: '26%', left: '2%' }}
-        initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.35 }}>
-        <div className="bg-orange-950/80 backdrop-blur-sm border border-orange-700/30 rounded-xl px-3 py-2 max-w-[125px]">
-          <p className="text-orange-300 font-bold text-xs">Nociceptors</p>
-          <p className="text-stone-400 text-[10px]">200/cm² in skin</p>
-          <p className="text-stone-400 text-[10px]">C-fibers + Aδ-fibers</p>
-          <p className="text-red-400 text-[10px]">Destroyed = no pain</p>
-          <p className="text-stone-400 text-[10px]">New skin = pain back</p>
         </div>
-      </motion.div>
-      {/* Logic — right */}
-      <motion.div className="absolute z-10" style={{ top: '26%', right: '2%' }}
-        initial={{ opacity: 0, x: 10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.5 }}>
-        <div className="bg-red-950/80 backdrop-blur-sm border border-red-700/30 rounded-xl px-3 py-2 max-w-[125px]">
-          <p className="text-red-300 font-bold text-xs">Quran Logic</p>
-          <p className="text-stone-400 text-[10px]">بَدَّلْنَاهُمْ = replace</p>
-          <p className="text-stone-400 text-[10px]">New skin → feel again</p>
-          <p className="text-stone-400 text-[10px]">لِيَذُوقُوا = to taste</p>
-          <p className="text-stone-500 text-[9px]">Von Frey 1895</p>
-        </div>
-      </motion.div>
-      <motion.div className="absolute bottom-3 inset-x-4 z-10 text-center"
-        initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1 }}>
-        <p className="text-stone-500 text-[10px]">Pain receptors exist only in skin — the Quran linked skin replacement to feeling punishment, confirmed by neuroscience</p>
       </motion.div>
     </div>
   );

@@ -1,59 +1,175 @@
 ﻿'use client';
-import { motion } from 'framer-motion';
 
-export default function HoneyAntibacterialVisual({ className = '' }: { className?: string }) {
+import { useEffect, useRef } from 'react';
+import { motion } from 'framer-motion';
+import type { MiracleVisualProps } from '../MiracleVisualRegistry';
+
+// 🍯 فِيهِ شِفَاءٌ لِلنَّاسِ — Honey as Healing
+// An-Nahl 16:69 — honey contains healing for people
+// H2O2, defensin-1, MGO, pH 3.2-4.5, osmotic — all antibacterial
+
+export default function HoneyAntibacterialVisual({ className }: MiracleVisualProps) {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    let animId: number;
+    let time = 0;
+
+    // Hexagonal honeycomb grid
+    type HexCell = { cx: number; cy: number; fill: number; bacteria: boolean };
+    const hexCells: HexCell[] = [];
+
+    // Honey particles (H2O2 and MGO)
+    type HParticle = { x: number; y: number; vx: number; vy: number; type: 'h2o2' | 'mgo' | 'defensin'; alpha: number };
+    const hParticles: HParticle[] = [];
+
+    // Bacteria being destroyed
+    type BacteriaCell = { x: number; y: number; size: number; dying: boolean; deathProgress: number; phase: number };
+    const bacteriaCells: BacteriaCell[] = [];
+
+    const buildHex = (w: number, h: number) => {
+      hexCells.length = 0;
+      const hexR = Math.min(w, h) * 0.06;
+      const hexW = hexR * 2;
+      const hexH = Math.sqrt(3) * hexR;
+      const cols = Math.ceil(w / (hexW * 0.75)) + 1;
+      const rows = Math.ceil(h * 0.55 / hexH) + 1;
+      for (let r = 0; r < rows; r++) {
+        for (let c = 0; c < cols; c++) {
+          const cx = c * hexW * 0.75;
+          const cy = (r % 1 === 0 ? 0 : hexH * 0.5) + r * hexH + h * 0.1;
+          const isOdd = c % 2 === 1;
+          hexCells.push({ cx, cy: cy + (isOdd ? hexH * 0.5 : 0), fill: Math.random(), bacteria: Math.random() < 0.05 });
+        }
+      }
+    };
+
+    let lastW = 0, lastH = 0;
+
+    const drawHex = (cx: number, cy: number, r: number, fillAmt: number) => {
+      ctx.beginPath();
+      for (let i = 0; i < 6; i++) {
+        const a = (i * Math.PI) / 3 - Math.PI / 6;
+        i === 0 ? ctx.moveTo(cx + Math.cos(a) * r, cy + Math.sin(a) * r)
+          : ctx.lineTo(cx + Math.cos(a) * r, cy + Math.sin(a) * r);
+      }
+      ctx.closePath();
+    };
+
+    const draw = () => {
+      time += 0.007;
+      const w = canvas.offsetWidth, h = canvas.offsetHeight;
+      if (w !== lastW || h !== lastH) { buildHex(w, h); lastW = w; lastH = h; }
+
+      ctx.fillStyle = '#0f0800'; ctx.fillRect(0, 0, w, h);
+
+      // ── Honeycomb background ──────────────────────────────────
+      const hexR = Math.min(w, h) * 0.06;
+      hexCells.forEach((cell) => {
+        const honeyAlpha = 0.15 + cell.fill * 0.2 + Math.sin(time * 0.5 + cell.cx * 0.01) * 0.04;
+        drawHex(cell.cx, cell.cy, hexR * 0.92, 0);
+        const honeyGrad = ctx.createRadialGradient(cell.cx, cell.cy, 0, cell.cx, cell.cy, hexR);
+        honeyGrad.addColorStop(0, `rgba(220,160,20,${honeyAlpha})`);
+        honeyGrad.addColorStop(1, `rgba(160,100,10,${honeyAlpha * 0.5})`);
+        ctx.fillStyle = honeyGrad; ctx.fill();
+        ctx.strokeStyle = `rgba(180,130,30,${honeyAlpha * 0.8})`; ctx.lineWidth = 0.7; ctx.stroke();
+      });
+
+      // ── Honey glow center ─────────────────────────────────────
+      const glowGrad = ctx.createRadialGradient(w * 0.5, h * 0.42, 0, w * 0.5, h * 0.42, w * 0.3);
+      glowGrad.addColorStop(0, 'rgba(220,160,30,0.12)');
+      glowGrad.addColorStop(0.5, 'rgba(180,120,20,0.06)');
+      glowGrad.addColorStop(1, 'rgba(0,0,0,0)');
+      ctx.fillStyle = glowGrad; ctx.fillRect(0, 0, w, h);
+
+      // Spawn honey particles
+      if (hParticles.length < 60 && Math.random() < 0.3) {
+        const types: ('h2o2' | 'mgo' | 'defensin')[] = ['h2o2', 'mgo', 'defensin'];
+        hParticles.push({
+          x: Math.random() * w, y: Math.random() * h * 0.7 + h * 0.1,
+          vx: (Math.random() - 0.5) * 0.8, vy: (Math.random() - 0.5) * 0.6,
+          type: types[Math.floor(Math.random() * 3)], alpha: 0.7,
+        });
+      }
+
+      hParticles.forEach((p, i) => {
+        p.x += p.vx; p.y += p.vy;
+        if (p.x < 0 || p.x > w) p.vx *= -1;
+        if (p.y < h * 0.1 || p.y > h * 0.75) p.vy *= -1;
+        const colors = { h2o2: 'rgba(180,220,255,', mgo: 'rgba(255,180,60,', defensin: 'rgba(160,255,160,' };
+        ctx.beginPath(); ctx.arc(p.x, p.y, 3, 0, Math.PI * 2);
+        ctx.fillStyle = colors[p.type] + p.alpha + ')'; ctx.fill();
+        ctx.font = `5px monospace`; ctx.textAlign = 'center';
+        ctx.fillStyle = colors[p.type] + p.alpha * 0.7 + ')';
+        ctx.fillText(p.type === 'h2o2' ? 'H₂O₂' : p.type === 'mgo' ? 'MGO' : 'DEF', p.x, p.y - 6);
+      });
+
+      // شِفَاءٌ label
+      ctx.font = `bold 12px serif`; ctx.textAlign = 'center';
+      ctx.fillStyle = 'rgba(220,180,60,0.6)'; ctx.shadowColor = 'rgba(200,150,40,0.4)'; ctx.shadowBlur = 12;
+      ctx.fillText('فِيهِ شِفَاءٌ لِلنَّاسِ', w * 0.5, h * 0.88);
+      ctx.shadowBlur = 0;
+
+      animId = requestAnimationFrame(draw);
+    };
+
+    let started = false;
+    const observer = new ResizeObserver(() => {
+      const dpr = window.devicePixelRatio || 1;
+      canvas.width = canvas.offsetWidth * dpr;
+      canvas.height = canvas.offsetHeight * dpr;
+      ctx.scale(dpr, dpr);
+      if (!started) { started = true; draw(); }
+    });
+    observer.observe(canvas);
+    return () => { cancelAnimationFrame(animId); observer.disconnect(); };
+  }, []);
+
   return (
-    <div className={`relative w-full h-full overflow-hidden ${className}`}>
-      <div className="absolute inset-0 bg-gradient-to-b from-[#1a0f00] via-[#0f0800] to-black" />
-      {/* Honey drop SVG */}
-      <motion.div className="absolute bottom-6 left-1/2 -translate-x-1/2"
-        initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 1 }}>
-        <svg viewBox="0 0 200 240" className="w-44 h-52" fill="none">
-          <defs><radialGradient id="hg" cx="50%" cy="40%"><stop offset="0%" stopColor="rgba(255,200,50,0.4)" /><stop offset="100%" stopColor="rgba(180,120,20,0.15)" /></radialGradient></defs>
-          <path d="M100 20 Q130 60 140 100 Q150 150 130 190 Q115 220 100 220 Q85 220 70 190 Q50 150 60 100 Q70 60 100 20Z" fill="url(#hg)" stroke="rgba(220,170,50,0.4)" strokeWidth="1" />
-          {/* Inner glow */}
-          <ellipse cx="100" cy="130" rx="30" ry="40" fill="rgba(255,220,80,0.1)" />
-          {/* Shield cross — antibacterial */}
-          <path d="M85 110 L115 110 M100 95 L100 125" stroke="rgba(255,200,50,0.5)" strokeWidth="2" strokeLinecap="round" />
-          {/* Bacteria being destroyed */}
-          {[{x:55,y:80},{x:145,y:90},{x:50,y:160},{x:150,y:150}].map((b,i) => (
-            <g key={i}><circle cx={b.x} cy={b.y} r="5" fill="rgba(255,80,80,0.3)" stroke="rgba(255,60,60,0.4)" strokeWidth="0.5" />
-            <line x1={b.x-3} y1={b.y-3} x2={b.x+3} y2={b.y+3} stroke="rgba(255,60,60,0.5)" strokeWidth="1" />
-            <line x1={b.x+3} y1={b.y-3} x2={b.x-3} y2={b.y+3} stroke="rgba(255,60,60,0.5)" strokeWidth="1" /></g>
+    <div className={`relative w-full h-full overflow-hidden ${className || ''}`}
+      style={{ background: '#0f0800' }}>
+      <canvas ref={canvasRef} className="absolute inset-0 w-full h-full" />
+
+      <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 1 }}
+        className="absolute top-0 inset-x-0 z-10 flex flex-col items-center pointer-events-none px-4 pt-2.5 pb-5"
+        style={{ background: 'linear-gradient(to bottom, rgba(15,8,0,0.9) 0%, rgba(15,8,0,0) 100%)' }}>
+        <p className="font-amiri text-sm md:text-base leading-snug text-center"
+          style={{ color: 'rgba(240,210,140,0.92)', textShadow: '0 0 18px rgba(200,160,60,0.4)' }}>
+          يَخْرُجُ مِن بُطُونِهَا شَرَابٌ مُّخْتَلِفٌ أَلْوَانُهُ{' '}
+          <span style={{ color: '#ffd060', textShadow: '0 0 14px rgba(255,210,80,0.7)' }}>فِيهِ شِفَاءٌ لِلنَّاسِ</span>
+        </p>
+        <p className="text-[9px] font-tajawal mt-0.5 tracking-[0.2em]" style={{ color: 'rgba(130,100,30,0.45)' }}>
+          سورة النحل · الآية ٦٩
+        </p>
+      </motion.div>
+
+      <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.6, duration: 1 }}
+        className="absolute bottom-0 inset-x-0 z-10 pointer-events-none flex flex-col items-center gap-1.5 pb-3 px-2"
+        style={{ background: 'linear-gradient(to top, rgba(15,8,0,0.92) 0%, rgba(15,8,0,0.5) 60%, rgba(15,8,0,0) 100%)', paddingTop: 20 }}>
+        <div className="flex flex-wrap justify-center gap-1.5">
+          {[
+            { icon: '🍯', label: 'H₂O₂', sub: 'أكسجين مضاد' },
+            { icon: '🔬', label: 'Defensin-1', sub: 'ببتيد مضاد' },
+            { icon: '⚗️', label: 'pH 3.2–4.5', sub: 'حمضية قاتلة' },
+            { icon: '💊', label: 'MGO مانوكا', sub: 'مضاد قوي' },
+          ].map(({ icon, label, sub }) => (
+            <div key={label} className="flex items-center gap-1 rounded-full px-2.5 py-1"
+              style={{ background: 'rgba(40,20,0,0.1)', border: '1px solid rgba(180,130,30,0.22)', backdropFilter: 'blur(8px)' }}>
+              <span style={{ fontSize: 10 }}>{icon}</span>
+              <div>
+                <span className="text-[10px] font-bold font-tajawal" style={{ color: 'rgba(240,210,130,0.92)' }}>{label}</span>
+                <span className="text-[8px] font-tajawal mr-1" style={{ color: 'rgba(170,140,70,0.6)' }}>{sub}</span>
+              </div>
+            </div>
           ))}
-        </svg>
-      </motion.div>
-      {/* Verse */}
-      <motion.div className="absolute top-5 inset-x-0 px-6 text-center z-10"
-        initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7 }}>
-        <p className="font-amiri text-base text-amber-100">فِيهِ <span className="text-amber-300 font-bold">شِفَاءٌ لِّلنَّاسِ</span></p>
-        <p className="text-amber-600/60 text-xs mt-0.5">النحل 16:69 — In it there is healing for people</p>
-      </motion.div>
-      {/* Mechanisms — left */}
-      <motion.div className="absolute z-10" style={{ top: '26%', left: '3%' }}
-        initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.35 }}>
-        <div className="bg-amber-950/80 backdrop-blur-sm border border-amber-700/30 rounded-xl px-3 py-2 max-w-[130px]">
-          <p className="text-amber-300 font-bold text-xs">Antibacterial</p>
-          <p className="text-stone-400 text-[10px]">H₂O₂ antiseptic</p>
-          <p className="text-stone-400 text-[10px]">pH 3.2-4.5 kills</p>
-          <p className="text-stone-400 text-[10px]">MGO damages DNA</p>
-          <p className="text-stone-400 text-[10px]">Defensin-1 protein</p>
         </div>
-      </motion.div>
-      {/* Medical — right */}
-      <motion.div className="absolute z-10" style={{ top: '26%', right: '3%' }}
-        initial={{ opacity: 0, x: 10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.5 }}>
-        <div className="bg-orange-950/80 backdrop-blur-sm border border-orange-700/30 rounded-xl px-3 py-2 max-w-[130px]">
-          <p className="text-orange-300 font-bold text-xs">Medical Proof</p>
-          <p className="text-stone-400 text-[10px]">Defeats MRSA</p>
-          <p className="text-stone-400 text-[10px]">FDA Approved 2007</p>
-          <p className="text-stone-400 text-[10px]">WHO Confirmed</p>
-          <p className="text-rose-400 text-[10px]">Manuka = gold std</p>
-        </div>
-      </motion.div>
-      <motion.div className="absolute bottom-3 inset-x-4 z-10 text-center"
-        initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1 }}>
-        <p className="text-stone-500 text-[10px]">Honey has 4 independent antibacterial mechanisms — modern medicine confirmed what the Quran stated 1400 years ago</p>
       </motion.div>
     </div>
   );

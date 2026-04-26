@@ -1,133 +1,150 @@
-'use client';
+﻿'use client';
+
+import { useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
+import type { MiracleVisualProps } from '../MiracleVisualRegistry';
 
-export default function MountainColorsVisual({ className = '' }: { className?: string }) {
+export default function MountainColorsVisual({ className }: MiracleVisualProps) {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    let animId: number;
+    let time = 0;
+
+    const strata = [
+      { color: 'rgba(220,220,220,0.55)', ar: 'Ø¨ÙŠØ¶', en: 'quartz/chalk', thickness: 0.08 },
+      { color: 'rgba(160,80,40,0.5)', ar: 'Ø­ÙÙ…Ø±', en: 'iron oxide', thickness: 0.12 },
+      { color: 'rgba(200,180,120,0.45)', ar: 'sandy', en: 'sandstone', thickness: 0.07 },
+      { color: 'rgba(180,100,60,0.5)', ar: 'Ø­Ù…Ø±Ø§Ø¡', en: 'jasper/laterite', thickness: 0.1 },
+      { color: 'rgba(240,240,250,0.5)', ar: 'Ø¨ÙŠØ¶', en: 'limestone', thickness: 0.09 },
+      { color: 'rgba(40,40,40,0.65)', ar: 'ØºØ±Ø§Ø¨ÙŠØ¨', en: 'basalt', thickness: 0.12 },
+      { color: 'rgba(160,80,60,0.45)', ar: 'Ø­Ù…Ø±', en: 'red granite', thickness: 0.08 },
+      { color: 'rgba(20,20,20,0.7)', ar: 'Ø³ÙˆØ¯', en: 'obsidian', thickness: 0.14 },
+      { color: 'rgba(230,210,190,0.4)', ar: 'ÙØ§ØªØ­', en: 'travertine', thickness: 0.07 },
+      { color: 'rgba(30,30,40,0.6)', ar: 'Ø³ÙˆØ¯', en: 'coal/slate', thickness: 0.13 },
+    ];
+
+    const draw = () => {
+      time += 0.007;
+      const w = canvas.offsetWidth, h = canvas.offsetHeight;
+
+      // Sky backdrop
+      const skyGrad = ctx.createLinearGradient(0, 0, 0, h);
+      skyGrad.addColorStop(0, '#0a0c14'); skyGrad.addColorStop(1, '#050608');
+      ctx.fillStyle = skyGrad; ctx.fillRect(0, 0, w, h);
+
+      // Mountain silhouette clip region
+      const peaks: [number, number][] = [
+        [0, h], [0, h * 0.55], [w * 0.1, h * 0.25], [w * 0.22, h * 0.55],
+        [w * 0.35, h * 0.18], [w * 0.5, h * 0.42], [w * 0.62, h * 0.12],
+        [w * 0.75, h * 0.4], [w * 0.88, h * 0.28], [w, h * 0.48], [w, h],
+      ];
+
+      ctx.save();
+      ctx.beginPath();
+      peaks.forEach(([px, py], i) => i === 0 ? ctx.moveTo(px, py) : ctx.lineTo(px, py));
+      ctx.closePath(); ctx.clip();
+
+      // Draw strata layers across full canvas in clipped mountain
+      let yOffset = 0;
+      strata.forEach((s, si) => {
+        const layerH = s.thickness * h;
+        const wave = Math.sin(time * 0.3 + si * 0.8) * 2;
+        const lGrad = ctx.createLinearGradient(0, yOffset + wave, 0, yOffset + layerH + wave);
+        lGrad.addColorStop(0, s.color); lGrad.addColorStop(0.5, s.color); lGrad.addColorStop(1, 'rgba(0,0,0,0.1)');
+        ctx.fillStyle = lGrad;
+        ctx.beginPath();
+        ctx.moveTo(0, yOffset + wave);
+        for (let x = 0; x <= w; x += 10) {
+          const wy = yOffset + Math.sin(x * 0.012 + time * 0.1 + si * 0.6) * 3 + wave;
+          ctx.lineTo(x, wy);
+        }
+        ctx.lineTo(w, yOffset + layerH + wave);
+        ctx.lineTo(0, yOffset + layerH + wave);
+        ctx.closePath(); ctx.fill();
+        // Layer label
+        ctx.font = `6px monospace`; ctx.textAlign = 'left';
+        ctx.fillStyle = `rgba(255,255,255,0.18)`;
+        ctx.fillText(s.en, 8, yOffset + layerH * 0.65 + wave);
+        ctx.textAlign = 'right';
+        ctx.fillStyle = `rgba(255,255,255,0.22)`;
+        ctx.fillText(s.ar, w - 8, yOffset + layerH * 0.65 + wave);
+        yOffset += layerH;
+      });
+
+      ctx.restore();
+
+      // Mountain outline
+      ctx.strokeStyle = 'rgba(120,100,80,0.2)'; ctx.lineWidth = 1;
+      ctx.beginPath();
+      peaks.forEach(([px, py], i) => i === 0 ? ctx.moveTo(px, py) : ctx.lineTo(px, py));
+      ctx.closePath(); ctx.stroke();
+
+      // Pulse scan line
+      const scanY = ((time * 0.08) % 1) * h;
+      ctx.strokeStyle = `rgba(200,220,255,0.08)`; ctx.lineWidth = 1;
+      ctx.beginPath(); ctx.moveTo(0, scanY); ctx.lineTo(w, scanY); ctx.stroke();
+
+      ctx.font = `bold 10px serif`; ctx.textAlign = 'center';
+      ctx.fillStyle = 'rgba(180,160,120,0.45)'; ctx.shadowColor = 'rgba(140,120,80,0.2)'; ctx.shadowBlur = 8;
+      ctx.fillText('Ø¬ÙØ¯ÙŽØ¯ÙŒ Ø¨ÙÙŠØ¶ÙŒ ÙˆÙŽØ­ÙÙ…Ù’Ø±ÙŒ ÙˆÙŽØºÙŽØ±ÙŽØ§Ø¨ÙÙŠØ¨Ù Ø³ÙÙˆØ¯ÙŒ', w * 0.5, h * 0.95);
+      ctx.shadowBlur = 0;
+
+      animId = requestAnimationFrame(draw);
+    };
+
+    let started = false;
+    const observer = new ResizeObserver(() => {
+      const dpr = window.devicePixelRatio || 1;
+      canvas.width = canvas.offsetWidth * dpr; canvas.height = canvas.offsetHeight * dpr;
+      ctx.scale(dpr, dpr);
+      if (!started) { started = true; draw(); }
+    });
+    observer.observe(canvas);
+    return () => { cancelAnimationFrame(animId); observer.disconnect(); };
+  }, []);
+
   return (
-    <div className={`relative w-full h-full overflow-hidden ${className}`}>
-      {/* Sky gradient */}
-      <div className="absolute inset-0 bg-gradient-to-b from-[#0a0c14] via-[#08080f] to-black" />
-      {/* Starfield */}
-      {[...Array(25)].map((_, i) => (
-        <div
-          key={i}
-          className="absolute rounded-full bg-white"
-          style={{
-            width: Math.random() * 2 + 1 + 'px',
-            height: Math.random() * 2 + 1 + 'px',
-            top: Math.random() * 40 + '%',
-            left: Math.random() * 100 + '%',
-            opacity: Math.random() * 0.5 + 0.1,
-          }}
-        />
-      ))}
-
-      {/* THREE MOUNTAIN PEAKS — large SVG scene */}
-      <div className="absolute bottom-0 left-0 right-0">
-        <svg viewBox="0 0 900 340" className="w-full h-auto" preserveAspectRatio="none">
-          <defs>
-            <linearGradient id="wm-white" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor="#e8e8ec" stopOpacity="0.95" />
-              <stop offset="100%" stopColor="#a0a0b0" stopOpacity="0.7" />
-            </linearGradient>
-            <linearGradient id="wm-red" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor="#b94040" stopOpacity="0.95" />
-              <stop offset="40%" stopColor="#8b2020" stopOpacity="0.9" />
-              <stop offset="100%" stopColor="#5a1010" stopOpacity="0.7" />
-            </linearGradient>
-            <linearGradient id="wm-black" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor="#1a1a1a" stopOpacity="0.98" />
-              <stop offset="100%" stopColor="#050505" stopOpacity="0.95" />
-            </linearGradient>
-          </defs>
-          {/* Ground */}
-          <rect x="0" y="300" width="900" height="40" fill="rgba(20,15,10,0.8)" />
-          {/* BLACK mountain — far right, tallest */}
-          <path d="M620 300 L760 80 L900 300Z" fill="url(#wm-black)" />
-          {/* RED mountain — centre, medium */}
-          <path d="M260 300 L450 60 L640 300Z" fill="url(#wm-red)" />
-          {/* RED rock strata lines */}
-          <path d="M350 200 Q450 195 550 200" stroke="rgba(180,60,60,0.4)" strokeWidth="2" fill="none" />
-          <path d="M310 230 Q450 225 590 230" stroke="rgba(160,50,50,0.3)" strokeWidth="2" fill="none" />
-          {/* WHITE mountain — left */}
-          <path d="M0 300 L200 55 L380 300Z" fill="url(#wm-white)" />
-          {/* Snow cap on white */}
-          <path d="M160 110 L200 55 L240 110 Q220 105 200 108 Q180 105 160 110Z" fill="white" opacity="0.9" />
-        </svg>
-      </div>
-
-      {/* Verse — top */}
-      <motion.div
-        className="absolute top-5 inset-x-0 px-6 text-center z-10"
-        initial={{ opacity: 0, y: -8 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.7 }}
-      >
-        <p className="font-amiri text-lg text-stone-100">
-          <span className="text-slate-300 font-bold">جُدَدٌ بِيضٌ</span>{' '}وَ{' '}
-          <span className="text-red-400 font-bold">حُمْرٌ مُّختَلِفٌ أَلْوَانُهَا</span>{' '}وَ{' '}
-          <span className="text-zinc-300 font-bold">غَرَابِيبُ سُودٌ</span>
+    <div className={`relative w-full h-full overflow-hidden ${className || ''}`} style={{ background: '#0a0c14' }}>
+      <canvas ref={canvasRef} className="absolute inset-0 w-full h-full" />
+      <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 1 }}
+        className="absolute top-0 inset-x-0 z-10 flex flex-col items-center pointer-events-none px-4 pt-2.5 pb-5"
+        style={{ background: 'linear-gradient(to bottom, rgba(10,12,20,0.9) 0%, rgba(10,12,20,0) 100%)' }}>
+        <p className="font-amiri text-sm md:text-base leading-snug text-center"
+          style={{ color: 'rgba(220,200,180,0.92)', textShadow: '0 0 18px rgba(160,140,100,0.4)' }}>
+          <span style={{ color: '#ffffff', textShadow: '0 0 14px rgba(255,255,240,0.6)' }}>Ø¬ÙØ¯ÙŽØ¯ÙŒ Ø¨ÙÙŠØ¶ÙŒ</span>
+          {' '}ÙˆÙŽ
+          <span style={{ color: '#ff8866', textShadow: '0 0 14px rgba(255,120,60,0.6)' }}>Ø­ÙÙ…Ù’Ø±ÙŒ</span>
+          {' '}ÙˆÙŽ
+          <span style={{ color: '#555566', textShadow: '0 0 14px rgba(80,80,100,0.5)' }}>ØºÙŽØ±ÙŽØ§Ø¨ÙÙŠØ¨Ù Ø³ÙÙˆØ¯ÙŒ</span>
         </p>
-        <p className="text-stone-500/70 text-xs mt-0.5">فاطر 35:27 — White tracts · Red of varying shades · Intensely black</p>
+        <p className="text-[9px] font-tajawal mt-0.5 tracking-[0.2em]" style={{ color: 'rgba(60,50,30,0.45)' }}>Ø³ÙˆØ±Ø© ÙØ§Ø·Ø± Â· Ø§Ù„Ø¢ÙŠØ© Ù¢Ù§</p>
       </motion.div>
-
-      {/* White mountain label */}
-      <motion.div
-        className="absolute z-10"
-        style={{ top: '38%', left: '3%' }}
-        initial={{ opacity: 0, x: -10 }}
-        animate={{ opacity: 1, x: 0 }}
-        transition={{ delay: 0.4, duration: 0.6 }}
-      >
-        <div className="bg-slate-900/80 backdrop-blur-sm border border-slate-400/30 rounded-xl px-3 py-2">
-          <p className="text-slate-200 font-bold text-xs">بِيضٌ WHITE</p>
-          <p className="text-slate-400 text-[10px]">Chalk · CaCO₃</p>
-          <p className="text-slate-400 text-[10px]">Quartz · SiO₂</p>
-          <p className="text-slate-400 text-[10px]">Marble · Calcium</p>
+      <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.6, duration: 1 }}
+        className="absolute bottom-0 inset-x-0 z-10 pointer-events-none flex flex-col items-center gap-1.5 pb-3 px-2"
+        style={{ background: 'linear-gradient(to top, rgba(10,12,20,0.92) 0%, rgba(10,12,20,0.5) 60%, rgba(10,12,20,0) 100%)', paddingTop: 20 }}>
+        <div className="flex flex-wrap justify-center gap-1.5">
+          {[
+            { icon: 'âšª', label: 'Ø¨ÙŠØ¶ = quartz', sub: 'SiO\u2082' },
+            { icon: 'ðŸ”´', label: 'Ø­Ù…Ø± = iron oxide', sub: 'Fe\u2082O\u2083' },
+            { icon: 'âš«', label: 'Ø³ÙˆØ¯ = basalt', sub: 'obsidian/coal' },
+            { icon: 'ðŸ§ª', label: 'geology', sub: 'stratigraphy' },
+          ].map(({ icon, label, sub }) => (
+            <div key={label} className="flex items-center gap-1 rounded-full px-2.5 py-1"
+              style={{ background: 'rgba(15,12,5,0.1)', border: '1px solid rgba(100,80,40,0.22)', backdropFilter: 'blur(8px)' }}>
+              <span style={{ fontSize: 10 }}>{icon}</span>
+              <div>
+                <span className="text-[10px] font-bold font-tajawal" style={{ color: 'rgba(220,200,160,0.92)' }}>{label}</span>
+                <span className="text-[8px] font-tajawal mr-1" style={{ color: 'rgba(140,120,60,0.6)' }}>{sub}</span>
+              </div>
+            </div>
+          ))}
         </div>
-      </motion.div>
-
-      {/* Red mountain label */}
-      <motion.div
-        className="absolute z-10"
-        style={{ top: '35%', left: '38%' }}
-        initial={{ opacity: 0, y: -10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.55, duration: 0.6 }}
-      >
-        <div className="bg-red-950/80 backdrop-blur-sm border border-red-600/30 rounded-xl px-3 py-2">
-          <p className="text-red-300 font-bold text-xs">حُمْرٌ RED (varying shades)</p>
-          <p className="text-stone-400 text-[10px]">Hematite · Fe₂O₃</p>
-          <p className="text-stone-400 text-[10px]">Red sandstone</p>
-          <p className="text-stone-400 text-[10px]">Iron oxide staining</p>
-        </div>
-      </motion.div>
-
-      {/* Black mountain label */}
-      <motion.div
-        className="absolute z-10"
-        style={{ top: '32%', right: '3%' }}
-        initial={{ opacity: 0, x: 10 }}
-        animate={{ opacity: 1, x: 0 }}
-        transition={{ delay: 0.7, duration: 0.6 }}
-      >
-        <div className="bg-zinc-950/90 backdrop-blur-sm border border-zinc-500/30 rounded-xl px-3 py-2">
-          <p className="text-zinc-200 font-bold text-xs">غَرَابِيبُ سُودٌ RAVEN BLACK</p>
-          <p className="text-stone-400 text-[10px]">Basalt · Volcanic</p>
-          <p className="text-stone-400 text-[10px]">Fe + Mg silicates</p>
-          <p className="text-stone-400 text-[10px]">Obsidian · Magnetite</p>
-        </div>
-      </motion.div>
-
-      {/* Parallel insight — bottom */}
-      <motion.div
-        className="absolute bottom-4 inset-x-4 z-10 text-center"
-        initial={{ opacity: 0, y: 8 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.9, duration: 0.6 }}
-      >
-        <p className="text-amber-400/80 text-xs">
-          <span className="text-amber-300 font-bold">إِنَّمَا يَخْشَى اللَّهَ مِنْ عِبَادِهِ الْعُلَمَاء</span>{' '}— Same verse 35:28 — Only those with KNOWLEDGE truly fear God
-        </p>
       </motion.div>
     </div>
   );

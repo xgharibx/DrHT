@@ -1,115 +1,150 @@
-'use client';
+﻿'use client';
+
+import { useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
+import type { MiracleVisualProps } from '../MiracleVisualRegistry';
 
-export default function WhaleJonahVisual({ className = '' }: { className?: string }) {
+export default function WhaleJonahVisual({ className }: MiracleVisualProps) {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    let animId: number;
+    let time = 0;
+
+    // Bubbles
+    type Bubble = { x: number; y: number; r: number; speed: number; alpha: number };
+    const bubbles: Bubble[] = Array.from({ length: 20 }, () => ({
+      x: Math.random(), y: 0.6 + Math.random() * 0.4,
+      r: 1 + Math.random() * 3, speed: 0.001 + Math.random() * 0.001, alpha: Math.random() * 0.15 + 0.05,
+    }));
+
+    const draw = () => {
+      time += 0.007;
+      const w = canvas.offsetWidth, h = canvas.offsetHeight;
+
+      // Ocean gradient
+      const oceanGrad = ctx.createLinearGradient(0, 0, 0, h);
+      oceanGrad.addColorStop(0, '#001530'); oceanGrad.addColorStop(0.3, '#000c20'); oceanGrad.addColorStop(1, '#000305');
+      ctx.fillStyle = oceanGrad; ctx.fillRect(0, 0, w, h);
+
+      // Light caustics at surface
+      for (let i = 0; i < 8; i++) {
+        const lx = ((i / 8 + time * 0.03) % 1) * w;
+        const cGrad = ctx.createLinearGradient(lx, 0, lx, h * 0.3);
+        cGrad.addColorStop(0, 'rgba(40,100,200,0.08)'); cGrad.addColorStop(1, 'rgba(0,0,0,0)');
+        ctx.fillStyle = cGrad; ctx.fillRect(lx - 20, 0, 40, h * 0.3);
+      }
+
+      // Bubbles
+      bubbles.forEach(b => {
+        b.y -= b.speed; if (b.y < 0) b.y = 1;
+        ctx.beginPath(); ctx.arc(b.x * w, b.y * h, b.r, 0, Math.PI * 2);
+        ctx.strokeStyle = `rgba(100,160,220,${b.alpha})`; ctx.lineWidth = 0.5; ctx.stroke();
+      });
+
+      // â”€â”€ Whale silhouette â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+      const whaleX = w * 0.5 + Math.sin(time * 0.2) * w * 0.1;
+      const whaleY = h * 0.52;
+      const wW = Math.min(w, h) * 0.55, wH = Math.min(w, h) * 0.16;
+      const whaleColor = 'rgba(20,40,60,0.7)';
+
+      // Body
+      ctx.beginPath(); ctx.ellipse(whaleX, whaleY, wW * 0.5, wH * 0.5, 0.05, 0, Math.PI * 2);
+      ctx.fillStyle = whaleColor; ctx.fill();
+      ctx.strokeStyle = 'rgba(30,60,100,0.3)'; ctx.lineWidth = 1; ctx.stroke();
+      // Tail fin
+      ctx.beginPath();
+      ctx.moveTo(whaleX - wW * 0.48, whaleY);
+      ctx.lineTo(whaleX - wW * 0.55, whaleY - wH * 0.5);
+      ctx.lineTo(whaleX - wW * 0.42, whaleY + 2);
+      ctx.lineTo(whaleX - wW * 0.55, whaleY + wH * 0.5);
+      ctx.closePath(); ctx.fillStyle = whaleColor; ctx.fill();
+      // Flippers
+      ctx.beginPath(); ctx.ellipse(whaleX + wW * 0.05, whaleY + wH * 0.35, wW * 0.15, wH * 0.12, 0.4, 0, Math.PI * 2);
+      ctx.fillStyle = 'rgba(15,32,50,0.6)'; ctx.fill();
+      // Dorsal fin
+      ctx.beginPath();
+      ctx.moveTo(whaleX + wW * 0.1, whaleY - wH * 0.48);
+      ctx.lineTo(whaleX + wW * 0.18, whaleY - wH * 0.78);
+      ctx.lineTo(whaleX + wW * 0.28, whaleY - wH * 0.48);
+      ctx.closePath(); ctx.fillStyle = whaleColor; ctx.fill();
+      // Eye
+      ctx.beginPath(); ctx.arc(whaleX + wW * 0.38, whaleY - wH * 0.08, 4, 0, Math.PI * 2);
+      ctx.fillStyle = 'rgba(40,80,120,0.5)'; ctx.fill();
+
+      // Jonah inside (faint glow)
+      const glowA = Math.sin(time * 1.5) * 0.03 + 0.08;
+      const innerGlow = ctx.createRadialGradient(whaleX, whaleY, 0, whaleX, whaleY, wH * 0.3);
+      innerGlow.addColorStop(0, `rgba(255,200,100,${glowA})`); innerGlow.addColorStop(1, 'rgba(0,0,0,0)');
+      ctx.fillStyle = innerGlow; ctx.fillRect(0, 0, w, h);
+      ctx.font = `7px serif`; ctx.textAlign = 'center';
+      ctx.fillStyle = `rgba(200,160,80,${glowA * 3})`;
+      ctx.fillText('ÙŠÙˆÙ†Ø³', whaleX, whaleY + 4);
+
+      // Whale blow spout
+      if (Math.sin(time * 0.4) > 0.95) {
+        const spoutGrad = ctx.createLinearGradient(whaleX + wW * 0.42, whaleY - wH * 0.5, whaleX + wW * 0.42, whaleY - wH * 1.2);
+        spoutGrad.addColorStop(0, 'rgba(100,160,220,0.3)'); spoutGrad.addColorStop(1, 'rgba(100,160,220,0)');
+        ctx.fillStyle = spoutGrad; ctx.fillRect(whaleX + wW * 0.38, whaleY - wH * 1.2, 12, wH * 0.7);
+      }
+
+      ctx.font = `bold 10px serif`; ctx.textAlign = 'center';
+      ctx.fillStyle = 'rgba(60,120,180,0.4)'; ctx.shadowColor = 'rgba(40,100,160,0.2)'; ctx.shadowBlur = 8;
+      ctx.fillText('ÙÙŽØ§Ù„ØªÙŽÙ‚ÙŽÙ…ÙŽÙ‡Ù Ø§Ù„Ø­ÙÙˆØªÙ ÙˆÙŽÙ‡ÙÙˆÙŽ Ù…ÙÙ„ÙŽÙÙŠÙ…ÙŒ', w * 0.5, h * 0.93);
+      ctx.shadowBlur = 0;
+
+      animId = requestAnimationFrame(draw);
+    };
+
+    let started = false;
+    const observer = new ResizeObserver(() => {
+      const dpr = window.devicePixelRatio || 1;
+      canvas.width = canvas.offsetWidth * dpr; canvas.height = canvas.offsetHeight * dpr;
+      ctx.scale(dpr, dpr);
+      if (!started) { started = true; draw(); }
+    });
+    observer.observe(canvas);
+    return () => { cancelAnimationFrame(animId); observer.disconnect(); };
+  }, []);
+
   return (
-    <div className={`relative w-full h-full overflow-hidden ${className}`}>
-      {/* Ocean depth gradient — becomes absolutely dark at bottom */}
-      <div className="absolute inset-0 bg-gradient-to-b from-[#001530] via-[#000c20] to-black" />
-      {/* Surface shimmer */}
-      <div className="absolute top-0 left-0 right-0 h-16 bg-gradient-to-b from-blue-900/30 to-transparent" />
-      {/* Subtle wave pattern at top */}
-      <svg className="absolute top-0 left-0 right-0 w-full h-20 opacity-20" viewBox="0 0 900 80" preserveAspectRatio="none">
-        <path d="M0 40 Q100 10 200 40 Q300 70 400 40 Q500 10 600 40 Q700 70 800 40 Q850 25 900 40 L900 0 L0 0Z" fill="#1e40af" />
-      </svg>
-
-      {/* WHALE SILHOUETTE — deep in the darkness */}
-      <motion.div
-        className="absolute left-1/2 top-[30%] -translate-x-1/2 -translate-y-1/2"
-        initial={{ opacity: 0, y: 30 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 1.2, ease: 'easeOut' }}
-      >
-        <svg viewBox="0 0 400 160" className="w-[320px] h-auto" fill="none">
-          {/* Glow around whale */}
-          <ellipse cx="200" cy="80" rx="180" ry="60" fill="rgba(30,60,120,0.15)" />
-          {/* Whale body */}
-          <path d="M30 80 Q60 45 130 60 Q180 68 240 65 Q300 62 340 80 Q300 98 240 95 Q180 92 130 100 Q60 115 30 80Z" fill="rgba(15,30,60,0.95)" stroke="rgba(50,100,200,0.3)" strokeWidth="1" />
-          {/* Whale head */}
-          <path d="M30 80 Q15 75 10 80 Q15 85 30 80Z" fill="rgba(15,30,60,0.9)" />
-          {/* Flukes / tail */}
-          <path d="M340 80 Q365 55 380 50 Q370 68 380 80 Q370 92 380 110 Q365 105 340 80Z" fill="rgba(15,30,60,0.9)" />
-          {/* Belly highlight */}
-          <path d="M80 85 Q180 95 280 88" stroke="rgba(80,130,200,0.15)" strokeWidth="8" strokeLinecap="round" fill="none" />
-          {/* Eye */}
-          <circle cx="60" cy="74" r="4" fill="rgba(80,140,220,0.7)" />
-          <circle cx="61" cy="73" r="1.5" fill="white" opacity="0.6" />
-        </svg>
-      </motion.div>
-
-      {/* Verse — top overlay */}
-      <motion.div
-        className="absolute top-5 inset-x-0 px-6 text-center"
-        initial={{ opacity: 0, y: -8 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.7 }}
-      >
-        <p className="font-amiri text-lg text-blue-100">
-          <span className="text-cyan-400 font-bold text-2xl">فَالْتَقَمَهُ الْحُوتُ</span>{' '}
-          وَهُوَ مُلِيمٌ
+    <div className={`relative w-full h-full overflow-hidden ${className || ''}`} style={{ background: '#001530' }}>
+      <canvas ref={canvasRef} className="absolute inset-0 w-full h-full" />
+      <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 1 }}
+        className="absolute top-0 inset-x-0 z-10 flex flex-col items-center pointer-events-none px-4 pt-2.5 pb-5"
+        style={{ background: 'linear-gradient(to bottom, rgba(0,21,48,0.9) 0%, rgba(0,21,48,0) 100%)' }}>
+        <p className="font-amiri text-sm md:text-base leading-snug text-center"
+          style={{ color: 'rgba(120,180,240,0.92)', textShadow: '0 0 18px rgba(60,120,200,0.4)' }}>
+          ÙÙŽØ§Ù„ØªÙŽÙ‚ÙŽÙ…ÙŽÙ‡Ù{' '}
+          <span style={{ color: '#66aaff', textShadow: '0 0 14px rgba(80,150,255,0.7)' }}>Ø§Ù„Ø­ÙÙˆØªÙ</span>
+          {' '}ÙˆÙŽÙ‡ÙÙˆÙŽ Ù…ÙÙ„ÙŽÙÙŠÙ…ÙŒ
         </p>
-        <p className="text-blue-400/60 text-xs mt-0.5">And the fish swallowed him — Al-Saffat 37:142</p>
+        <p className="text-[9px] font-tajawal mt-0.5 tracking-[0.2em]" style={{ color: 'rgba(30,70,120,0.45)' }}>Ø³ÙˆØ±Ø© Ø§Ù„ØµØ§ÙØ§Øª Â· Ø§Ù„Ø¢ÙŠØ© Ù¡Ù¤Ù¢</p>
       </motion.div>
-
-      {/* Three darkness layers — LEFT column */}
-      <div className="absolute left-4 top-[42%] flex flex-col gap-1.5">
-        {[
-          { n: '①', label: 'Night', sub: 'Dark of night', icon: '🌙', clr: 'text-indigo-300', b: 'border-indigo-700/40' },
-          { n: '②', label: 'Ocean Depth', sub: '2,000+ m — zero light', icon: '🌊', clr: 'text-blue-300', b: 'border-blue-700/40' },
-          { n: '③', label: 'Stomach', sub: '800L forestomach — no acid', icon: '🐋', clr: 'text-teal-300', b: 'border-teal-700/40' },
-        ].map((d, i) => (
-          <motion.div
-            key={d.n}
-            className={`flex items-center gap-2 bg-slate-950/80 backdrop-blur-sm border ${d.b} rounded-lg px-3 py-1.5`}
-            initial={{ opacity: 0, x: -15 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: 0.4 + i * 0.15, duration: 0.5 }}
-          >
-            <span className={`font-bold text-base ${d.clr}`}>{d.n}</span>
-            <span className="text-base">{d.icon}</span>
-            <div>
-              <p className={`font-bold text-xs ${d.clr}`}>{d.label}</p>
-              <p className="text-slate-400 text-[10px]">{d.sub}</p>
-            </div>
-          </motion.div>
-        ))}
-      </div>
-
-      {/* الظُّلُمَات banner — centre overlay on whale */}
-      <motion.div
-        className="absolute left-1/2 top-[44%] -translate-x-1/2 text-center"
-        initial={{ opacity: 0, scale: 0.9 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ delay: 0.3, duration: 0.7 }}
-      >
-        <p className="font-amiri text-3xl font-bold text-cyan-300 drop-shadow-lg [text-shadow:0_0_30px_rgba(34,211,238,0.5)]">
-          الظُّلُمَاتِ
-        </p>
-        <p className="text-cyan-500/70 text-[10px] tracking-widest uppercase">PLURAL — 3 simultaneous darknesses</p>
-      </motion.div>
-
-      {/* Sperm whale stats — right column */}
-      <motion.div
-        className="absolute right-4 top-[42%]"
-        initial={{ opacity: 0, x: 15 }}
-        animate={{ opacity: 1, x: 0 }}
-        transition={{ delay: 0.7, duration: 0.6 }}
-      >
-        <div className="bg-teal-950/80 backdrop-blur-sm border border-teal-700/30 rounded-xl px-3 py-3 text-center">
-          <p className="text-teal-300 font-bold text-xs mb-2">Sperm Whale</p>
-          <div className="grid grid-cols-2 gap-2">
-            {[
-              { v: '800L', l: 'Stomach' },
-              { v: '0', l: 'Stomach acid' },
-              { v: '45cm', l: 'Throat' },
-              { v: '2km+', l: 'Dive depth' },
-            ].map(s => (
-              <div key={s.l} className="text-center">
-                <p className="text-white font-bold text-sm">{s.v}</p>
-                <p className="text-slate-400 text-[9px]">{s.l}</p>
+      <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.6, duration: 1 }}
+        className="absolute bottom-0 inset-x-0 z-10 pointer-events-none flex flex-col items-center gap-1.5 pb-3 px-2"
+        style={{ background: 'linear-gradient(to top, rgba(0,21,48,0.92) 0%, rgba(0,21,48,0.5) 60%, rgba(0,21,48,0) 100%)', paddingTop: 20 }}>
+        <div className="flex flex-wrap justify-center gap-1.5">
+          {[
+            { icon: 'ðŸ³', label: 'sperm whale', sub: 'largest predator' },
+            { icon: 'ðŸª£', label: 'ÙŠØ¨ØªÙ„Ø¹ ÙƒØ§Ù…Ù„Ø§Ù‹', sub: 'whole humans' },
+            { icon: 'ðŸ’¡', label: 'Ù†Ø¬Ø§Ø© ÙŠÙˆÙ†Ø³', sub: 'Ù…Ø¹Ø¬Ø²Ø©' },
+            { icon: 'ðŸŒŠ', label: 'deep ocean', sub: 'darkness layers' },
+          ].map(({ icon, label, sub }) => (
+            <div key={label} className="flex items-center gap-1 rounded-full px-2.5 py-1"
+              style={{ background: 'rgba(0,15,35,0.1)', border: '1px solid rgba(30,70,140,0.22)', backdropFilter: 'blur(8px)' }}>
+              <span style={{ fontSize: 10 }}>{icon}</span>
+              <div>
+                <span className="text-[10px] font-bold font-tajawal" style={{ color: 'rgba(120,180,240,0.92)' }}>{label}</span>
+                <span className="text-[8px] font-tajawal mr-1" style={{ color: 'rgba(60,110,180,0.6)' }}>{sub}</span>
               </div>
-            ))}
-          </div>
+            </div>
+          ))}
         </div>
       </motion.div>
     </div>

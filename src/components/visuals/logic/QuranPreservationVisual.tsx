@@ -1,108 +1,126 @@
 ﻿'use client';
+
+import { useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
+import type { MiracleVisualProps } from '../MiracleVisualRegistry';
 
-const manuscripts = [
-  { name: 'Birmingham Quran', date: '568–645 CE', note: 'Carbon-dated within revelation period', left: '5%', top: '28%' },
-  { name: 'Topkapi Manuscript', date: '8th century', note: 'Istanbul · Identical to today', left: '5%', top: '46%' },
-  { name: "Sana'a Manuscript", date: '7th century', note: 'Yemen 1972 · Identical to today', left: '5%', top: '62%' },
-];
+export default function QuranPreservationVisual({ className }: MiracleVisualProps) {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
 
-export default function QuranPreservationVisual({ className = '' }: { className?: string }) {
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    let animId: number;
+    let time = 0;
+
+    const mss = [
+      { name: 'Birmingham Quran', date: '568-645 CE', y: 0.28, alpha: 0 },
+      { name: 'Topkapi MSS', date: '8th century', y: 0.44, alpha: 0 },
+      { name: "Sana'a MSS", date: '7th century', y: 0.60, alpha: 0 },
+      { name: 'Samarkand Codex', date: '8th century', y: 0.76, alpha: 0 },
+    ];
+
+    const arabicChars = 'ابتثجحخدذرزسشصضطظعغفقكلمنهوي';
+    type Particle = { x: number; y: number; char: string; alpha: number; speed: number };
+    const particles: Particle[] = Array.from({ length: 40 }, () => ({
+      x: Math.random(), y: Math.random(),
+      char: arabicChars[Math.floor(Math.random() * arabicChars.length)],
+      alpha: Math.random() * 0.1 + 0.02,
+      speed: 0.0003 + Math.random() * 0.0003,
+    }));
+
+    const draw = () => {
+      time += 0.007;
+      const w = canvas.offsetWidth, h = canvas.offsetHeight;
+
+      const bgGrad = ctx.createLinearGradient(0, 0, 0, h);
+      bgGrad.addColorStop(0, '#050408'); bgGrad.addColorStop(1, '#030206');
+      ctx.fillStyle = bgGrad; ctx.fillRect(0, 0, w, h);
+
+      particles.forEach(p => {
+        p.y -= p.speed; if (p.y < 0) p.y = 1;
+        ctx.font = `${8 + Math.sin(time + p.x * 10) * 2}px serif`; ctx.textAlign = 'center';
+        ctx.fillStyle = `rgba(180,160,220,${p.alpha})`;
+        ctx.fillText(p.char, p.x * w, p.y * h);
+      });
+
+      mss.forEach((ms, i) => {
+        ms.alpha = Math.min(1, ms.alpha + 0.005);
+        const y = ms.y * h;
+        const barW = (w * 0.75) * ms.alpha;
+        const barGrad = ctx.createLinearGradient(w * 0.1, 0, w * 0.1 + barW, 0);
+        barGrad.addColorStop(0, `rgba(80,60,130,${ms.alpha * 0.18})`);
+        barGrad.addColorStop(1, `rgba(80,60,130,0)`);
+        ctx.fillStyle = barGrad; ctx.fillRect(w * 0.1, y - 12, barW, 24);
+        ctx.fillStyle = `rgba(160,140,220,${ms.alpha * 0.5})`; ctx.fillRect(w * 0.1, y - 12, 2, 24);
+        ctx.font = `bold 9px sans-serif`; ctx.textAlign = 'left';
+        ctx.fillStyle = `rgba(200,185,255,${ms.alpha * 0.8})`;
+        ctx.fillText(ms.name, w * 0.14, y + 2);
+        ctx.font = `7px monospace`;
+        ctx.fillStyle = `rgba(140,120,200,${ms.alpha * 0.55})`;
+        ctx.fillText(ms.date, w * 0.14, y + 12);
+        if (ms.alpha > 0.9) {
+          ctx.font = `7px sans-serif`; ctx.textAlign = 'right';
+          ctx.fillStyle = 'rgba(120,220,140,0.5)';
+          ctx.fillText('= مطابق', w * 0.88, y + 4);
+        }
+      });
+
+      ctx.font = `bold 10px serif`; ctx.textAlign = 'center';
+      ctx.fillStyle = 'rgba(180,160,220,0.4)'; ctx.shadowColor = 'rgba(140,120,200,0.2)'; ctx.shadowBlur = 8;
+      ctx.fillText('إِنَّا نَحْنُ نَزَّلْنَا الذِّكْرَ وَإِنَّا لَهُ لَحَافظُونَ', w * 0.5, h * 0.91);
+      ctx.shadowBlur = 0;
+
+      animId = requestAnimationFrame(draw);
+    };
+
+    let started = false;
+    const observer = new ResizeObserver(() => {
+      const dpr = window.devicePixelRatio || 1;
+      canvas.width = canvas.offsetWidth * dpr; canvas.height = canvas.offsetHeight * dpr;
+      ctx.scale(dpr, dpr);
+      if (!started) { started = true; draw(); }
+    });
+    observer.observe(canvas);
+    return () => { cancelAnimationFrame(animId); observer.disconnect(); };
+  }, []);
+
   return (
-    <div className={`relative w-full h-full overflow-hidden ${className}`}>
-      {/* Deep teal background */}
-      <div className="absolute inset-0 bg-gradient-to-b from-[#001410] via-[#000e08] to-black" />
-
-      {/* Central manuscript / Quran book SVG */}
-      <motion.div
-        className="absolute bottom-0 left-1/2 -translate-x-1/2"
-        initial={{ opacity: 0, y: 30 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 1, ease: 'easeOut' }}
-      >
-        <svg viewBox="0 0 280 260" className="w-60 h-56" fill="none">
-          {/* Book glow */}
-          <ellipse cx="140" cy="220" rx="80" ry="15" fill="rgba(16,185,129,0.15)" />
-          {/* Book pages */}
-          <rect x="60" y="60" width="160" height="200" rx="6" fill="rgba(20,50,35,0.9)" stroke="rgba(16,185,129,0.4)" strokeWidth="1.5" />
-          <rect x="68" y="68" width="144" height="184" rx="4" fill="rgba(10,30,20,0.8)" />
-          {/* Arabic text lines */}
-          {[0,1,2,3,4,5,6,7,8,9].map(i => (
-            <line key={i} x1="85" y1={85 + i * 16} x2={i % 2 === 0 ? "195" : "185"} y2={85 + i * 16} stroke="rgba(16,185,129,0.4)" strokeWidth="1.5" />
-          ))}
-          {/* Gold binding spine */}
-          <rect x="56" y="60" width="12" height="200" rx="3" fill="rgba(180,140,20,0.6)" />
-          <line x1="62" y1="80" x2="62" y2="240" stroke="rgba(220,180,40,0.4)" strokeWidth="1" />
-          {/* Title area */}
-          <rect x="80" y="68" width="120" height="24" rx="3" fill="rgba(16,185,129,0.15)" />
-          <text x="140" y="84" textAnchor="middle" fill="rgba(16,185,129,0.8)" fontSize="10" fontFamily="serif">القرآن الكريم</text>
-        </svg>
-      </motion.div>
-
-      {/* Light shaft from top */}
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-24 h-48 bg-gradient-to-b from-emerald-400/10 to-transparent pointer-events-none" />
-
-      {/* Verse — top */}
-      <motion.div
-        className="absolute top-5 inset-x-0 px-6 text-center z-10"
-        initial={{ opacity: 0, y: -8 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.7 }}
-      >
-        <p className="font-amiri text-lg text-emerald-100">
-          إِنَّا{' '}
-          <span className="text-emerald-300 font-bold">نَحْنُ نَزَّلْنَا الذِّكْرَ</span>{' '}
-          وَإِنَّا لَهُ{' '}
-          <span className="text-yellow-300 font-bold">لَحَافِظُونَ</span>
+    <div className={`relative w-full h-full overflow-hidden ${className || ''}`} style={{ background: '#050408' }}>
+      <canvas ref={canvasRef} className="absolute inset-0 w-full h-full" />
+      <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 1 }}
+        className="absolute top-0 inset-x-0 z-10 flex flex-col items-center pointer-events-none px-4 pt-2.5 pb-5"
+        style={{ background: 'linear-gradient(to bottom, rgba(5,4,8,0.9) 0%, rgba(5,4,8,0) 100%)' }}>
+        <p className="font-amiri text-sm md:text-base leading-snug text-center"
+          style={{ color: 'rgba(200,185,255,0.92)', textShadow: '0 0 18px rgba(140,120,255,0.4)' }}>
+          إِنَّا نَحْنُ نَزَّلْنَا الذِّكْرَ{' '}
+          <span style={{ color: '#bbaaff', textShadow: '0 0 14px rgba(180,150,255,0.7)' }}>وَإِنَّا لَهُ لَحَافظُونَ</span>
         </p>
-        <p className="text-emerald-600/60 text-xs mt-0.5">الحجر 15:9 — We sent down the Reminder and WE GUARD IT</p>
+        <p className="text-[9px] font-tajawal mt-0.5 tracking-[0.2em]" style={{ color: 'rgba(70,55,120,0.45)' }}>سورة الحجر · الآية ٩</p>
       </motion.div>
-
-      {/* Manuscript cards — left side */}
-      {manuscripts.map((m, i) => (
-        <motion.div
-          key={m.name}
-          className="absolute z-10"
-          style={{ top: m.top, left: m.left }}
-          initial={{ opacity: 0, x: -10 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: 0.3 + i * 0.2 }}
-        >
-          <div className="bg-emerald-950/80 backdrop-blur-sm border border-emerald-700/30 rounded-xl px-3 py-1.5 max-w-[160px]">
-            <p className="text-emerald-300 font-bold text-[10px]">{m.name}</p>
-            <p className="text-yellow-400 text-[9px]">{m.date}</p>
-            <p className="text-stone-400 text-[9px]">{m.note}</p>
-          </div>
-        </motion.div>
-      ))}
-
-      {/* Stats — right side */}
-      <motion.div
-        className="absolute z-10" style={{ top: '28%', right: '3%' }}
-        initial={{ opacity: 0, x: 10 }}
-        animate={{ opacity: 1, x: 0 }}
-        transition={{ delay: 0.4 }}
-      >
-        <div className="bg-slate-950/80 backdrop-blur-sm border border-slate-600/30 rounded-xl px-3 py-2 max-w-[150px]">
-          <p className="text-yellow-300 font-bold text-xs">10M+ Huffaz</p>
-          <p className="text-stone-400 text-[10px]">memorized every word</p>
-          <div className="h-px bg-slate-700/50 my-1.5" />
-          <p className="text-red-400 font-bold text-xs">Bible NT: 400K variants</p>
-          <p className="text-stone-400 text-[10px]">across manuscripts</p>
-          <div className="h-px bg-slate-700/50 my-1.5" />
-          <p className="text-blue-300 font-bold text-xs">Quran: 0 variants</p>
-          <p className="text-stone-400 text-[10px]">substantive differences</p>
+      <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.6, duration: 1 }}
+        className="absolute bottom-0 inset-x-0 z-10 pointer-events-none flex flex-col items-center gap-1.5 pb-3 px-2"
+        style={{ background: 'linear-gradient(to top, rgba(5,4,8,0.92) 0%, rgba(5,4,8,0.5) 60%, rgba(5,4,8,0) 100%)', paddingTop: 20 }}>
+        <div className="flex flex-wrap justify-center gap-1.5">
+          {[
+            { icon: '📜', label: 'Birmingham', sub: '568-645 CE' },
+            { icon: '📖', label: '114 سورة', sub: 'متطابقة' },
+            { icon: '🔍', label: 'carbon dated', sub: "Sana'a 1972" },
+            { icon: '✅', label: 'لا تغيير', sub: '14 قرنا' },
+          ].map(({ icon, label, sub }) => (
+            <div key={label} className="flex items-center gap-1 rounded-full px-2.5 py-1"
+              style={{ background: 'rgba(10,8,20,0.1)', border: '1px solid rgba(80,60,160,0.22)', backdropFilter: 'blur(8px)' }}>
+              <span style={{ fontSize: 10 }}>{icon}</span>
+              <div>
+                <span className="text-[10px] font-bold font-tajawal" style={{ color: 'rgba(200,185,255,0.92)' }}>{label}</span>
+                <span className="text-[8px] font-tajawal mr-1" style={{ color: 'rgba(120,100,200,0.6)' }}>{sub}</span>
+              </div>
+            </div>
+          ))}
         </div>
-      </motion.div>
-
-      {/* Bottom footnote */}
-      <motion.div
-        className="absolute bottom-4 inset-x-4 z-10 text-center"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 1.2 }}
-      >
-        <p className="text-stone-500 text-[10px]">Only scripture preserved by both memory AND manuscript simultaneously across 1,400 years</p>
       </motion.div>
     </div>
   );
